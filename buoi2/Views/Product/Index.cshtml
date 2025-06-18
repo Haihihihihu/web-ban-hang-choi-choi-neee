@@ -1,0 +1,61 @@
+﻿@model IEnumerable<buoi2.Models.Product>
+@{
+    ViewData["Title"] = "Index";
+    string currentSearch = ViewBag.SearchName as string ?? "";
+    string currentSort = ViewBag.SortBy as string ?? "";
+}
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4" style="color: #4a00e0;">
+        <i class="fas fa-box-open me-2"></i>Sản phẩm
+    </h2>
+
+    <!-- Tìm kiếm & Sắp xếp -->
+    <form method="get" asp-action="Index" class="row mb-4">
+        <div class="col-md-6">
+            <input type="text" name="searchName" value="@currentSearch" class="form-control" placeholder="Tìm theo tên sản phẩm..." />
+        </div>
+        <div class="col-md-4">
+            <select name="sortBy" class="form-select">
+                <option value="">-- Sắp xếp theo giá --</option>
+               <option value="price_asc" selected="@(currentSort == "price_asc")">Giá tăng dần</option>
+                <option value="price_desc" selected="@(currentSort == "price_desc")">Giá giảm dần</option>
+
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+        </div>
+    </form>
+
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow">
+                    <img src="@(product.ImageUrl ?? "/images/default-product.jpg")"
+                         class="card-img-top"
+                         alt="@product.Name"
+                         style="height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text text-muted">@product.Description</p>
+                        <p class="card-text text-primary font-weight-bold">$@product.Price</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
+                        <a asp-action="Display" asp-route-id="@product.Id" class="btn btn-sm btn-outline-primary custom-btn">View</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+
+                            <a asp-action="Update" asp-route-id="@product.Id" class="btn btn-sm btn-outline-success custom-btn">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-outline-danger custom-btn"
+                            onclick="return confirm('Are you sure you want to delete this product?');">Delete</a> }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

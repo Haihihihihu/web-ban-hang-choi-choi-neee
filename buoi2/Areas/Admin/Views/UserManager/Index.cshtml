@@ -1,0 +1,43 @@
+﻿@model IEnumerable<buoi2.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "User Manager";
+}
+
+<h1 class="mb-4">User Manager</h1>
+
+<!-- Hiển thị thông báo thành công/thất bại -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>Email</th>
+            <th>Full Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.FullName</td>
+                <td>
+                    <form asp-action="DeleteUser" method="post" asp-route-id="@user.Id" onsubmit="return confirm('Are you sure you want to delete @user.FullName?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+    

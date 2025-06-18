@@ -1,0 +1,494 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+    }
+
+    .register-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+    }
+
+    .background-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        animation: float 8s ease-in-out infinite;
+    }
+
+        .shape:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            top: 15%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            left: 75%;
+            animation-delay: 3s;
+        }
+
+        .shape:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            top: 25%;
+            left: 80%;
+            animation-delay: 6s;
+        }
+
+        .shape:nth-child(4) {
+            width: 120px;
+            height: 120px;
+            top: 75%;
+            left: 10%;
+            animation-delay: 1.5s;
+        }
+
+    @@keyframes float {
+        0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(-30px) rotate(180deg);
+        }
+    }
+
+    .register-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+        padding: 0;
+        width: 100%;
+        max-width: 500px;
+        position: relative;
+        z-index: 1;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        overflow: hidden;
+    }
+
+    .register-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 35px;
+        text-align: center;
+        position: relative;
+    }
+
+        .register-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.5" fill="rgba(255,255,255,0.15)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+            opacity: 0.4;
+        }
+
+        .register-header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .register-header .subtitle {
+            margin: 10px 0 0 0;
+            opacity: 0.95;
+            font-size: 16px;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+        }
+
+    .register-body {
+        padding: 40px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 18px 20px;
+        border: 2px solid #e8ecf4;
+        border-radius: 14px;
+        font-size: 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255, 255, 255, 0.9);
+        box-sizing: border-box;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #f093fb;
+            box-shadow: 0 0 0 4px rgba(240, 147, 251, 0.15);
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-3px);
+        }
+
+    .form-label {
+        position: absolute;
+        left: 20px;
+        top: 18px;
+        color: #8b9dc3;
+        font-size: 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+        background: transparent;
+        font-weight: 500;
+    }
+
+    .form-control:focus + .form-label,
+    .form-control:not(:placeholder-shown) + .form-label {
+        top: -10px;
+        left: 16px;
+        font-size: 12px;
+        color: #f093fb;
+        background: white;
+        padding: 0 8px;
+        font-weight: 600;
+    }
+
+    .btn-register {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 10px;
+    }
+
+        .btn-register::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-register:hover::before {
+            left: 100%;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(240, 147, 251, 0.4);
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        }
+
+        .btn-register:active {
+            transform: translateY(-1px);
+        }
+
+    .divider {
+        text-align: center;
+        margin: 35px 0;
+        position: relative;
+    }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e8ecf4, transparent);
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 25px;
+            color: #8b9dc3;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+    .social-register {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .btn-social {
+        padding: 14px;
+        border: 2px solid #e8ecf4;
+        border-radius: 12px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 15px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: #64748b;
+    }
+
+        .btn-social:hover {
+            border-color: #f093fb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.2);
+            color: #f093fb;
+        }
+
+    .login-link {
+        text-align: center;
+        margin-top: 25px;
+        padding: 20px;
+        background: rgba(240, 147, 251, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(240, 147, 251, 0.1);
+    }
+
+        .login-link p {
+            margin: 0;
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        .login-link a {
+            color: #f093fb;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            margin-left: 8px;
+        }
+
+            .login-link a:hover {
+                color: #f5576c;
+                text-decoration: underline;
+            }
+
+    .text-danger {
+        color: #ef4444;
+        font-size: 12px;
+        margin-top: 6px;
+        display: block;
+        font-weight: 500;
+    }
+
+    .validation-summary {
+        background: rgba(239, 68, 68, 0.1);
+        border: 2px solid rgba(239, 68, 68, 0.2);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 25px;
+        color: #ef4444;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .password-strength {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #8b9dc3;
+    }
+
+    .strength-bar {
+        height: 3px;
+        background: #e8ecf4;
+        border-radius: 2px;
+        margin-top: 5px;
+        overflow: hidden;
+    }
+
+    .strength-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+        width: 0%;
+        transition: width 0.3s ease;
+        border-radius: 2px;
+    }
+
+    @@media (max-width: 768px) {
+        .register-container {
+            padding: 15px;
+        }
+
+        .register-card {
+            margin: 10px;
+            max-width: 100%;
+        }
+
+        .register-header {
+            padding: 30px 25px;
+        }
+
+            .register-header h1 {
+                font-size: 28px;
+            }
+
+        .register-body {
+            padding: 30px 25px;
+        }
+
+        .form-control {
+            padding: 16px 18px;
+        }
+
+        .form-label {
+            top: 16px;
+            left: 18px;
+        }
+    }
+</style>
+
+<div class="register-container">
+    <div class="background-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="register-card">
+        <div class="register-header">
+            <h1>Join Us Today</h1>
+            <p class="subtitle">Create your account to get started</p>
+        </div>
+
+        <div class="register-body">
+            <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <div asp-validation-summary="ModelOnly" class="validation-summary text-danger" role="alert"></div>
+
+                <div class="form-group">
+                    <input asp-for="Input.FullName" class="form-control" autocomplete="name" aria-required="true" placeholder=" " />
+                    <label asp-for="Input.FullName" class="form-label">Full Name</label>
+                    <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="email" aria-required="true" placeholder=" " />
+                    <label asp-for="Input.Email" class="form-label">Email Address</label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder=" " />
+                    <label asp-for="Input.Password" class="form-label">Password</label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    <div class="password-strength">
+                        <div class="strength-bar">
+                            <div class="strength-fill"></div>
+                        </div>
+                        <small>Use 8+ characters with a mix of letters, numbers & symbols</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder=" " />
+                    <label asp-for="Input.ConfirmPassword" class="form-label">Confirm Password</label>
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+                <div class="form-floating">
+                    <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-control">
+                        <option disabled selected>-Selected Role-</option>
+                    </select>
+                </div>
+                <button id="registerSubmit" type="submit" class="btn-register">
+                    Create Account
+                </button>
+            </form>
+
+            @{
+                if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                {
+                    <div class="divider">
+                        <span>or register with</span>
+                    </div>
+
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                        <div class="social-register">
+                            @foreach (var provider in Model.ExternalLogins!)
+                            {
+                                <button type="submit" class="btn-social" name="provider" value="@provider.Name" title="Register using your @provider.DisplayName account">
+                                    @provider.DisplayName
+                                </button>
+                            }
+                        </div>
+                    </form>
+                }
+            }
+
+            <div class="login-link">
+                <p>Already have an account? <a href="/Identity/Account/Login">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Password strength indicator
+    document.addEventListener('DOMContentLoaded', function () {
+        const passwordInput = document.querySelector('input[asp-for="Input.Password"]');
+        const strengthFill = document.querySelector('.strength-fill');
+
+        if (passwordInput && strengthFill) {
+            passwordInput.addEventListener('input', function () {
+                const password = this.value;
+                let strength = 0;
+
+                if (password.length >= 8) strength += 25;
+                if (/[a-z]/.test(password)) strength += 25;
+                if (/[A-Z]/.test(password)) strength += 25;
+                if (/[0-9]/.test(password)) strength += 25;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+
+                strengthFill.style.width = Math.min(strength, 100) + '%';
+            });
+        }
+    });
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,96 @@
+﻿@{
+    ViewData["Title"] = "Hệ thống cơ sở HUTECH";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <h2 class="text-center text-uppercase fw-bold mb-4">Hệ Thống Cơ Sở HUTECH</h2>
+
+    <div class="row">
+        <!-- DANH SÁCH ĐỊA ĐIỂM -->
+        <div class="col-md-5">
+            <div class="list-group" id="storeList">
+                <button class="list-group-item list-group-item-action active" data-id="1">HUTECH - Ung Văn Khiêm</button>
+                <button class="list-group-item list-group-item-action" data-id="2">HUTECH - Thủ Đức (Cơ sở E)</button>
+                <button class="list-group-item list-group-item-action" data-id="3">HUTECH - Nhân lực chất lượng cao</button>
+            </div>
+
+            <div class="mt-4">
+                <div class="store-info" id="store-1">
+                    <h5>HUTECH - Cơ sở Ung Văn Khiêm</h5>
+                    <p>475A Điện Biên Phủ, Phường 25, Quận Bình Thạnh, TP.HCM</p>
+                    <p>Giờ hoạt động: 07:00 - 21:00</p>
+                    <p>Điện thoại: <strong>(028) 5445 7777</strong></p>
+                </div>
+                <div class="store-info d-none" id="store-2">
+                    <h5>HUTECH - Cơ sở E (Khu CNC Thủ Đức)</h5>
+                    <p>Khu Công nghệ Cao, Quận 9 (nay là TP.Thủ Đức), TP.HCM</p>
+                    <p>Giờ hoạt động: 07:00 - 21:00</p>
+                    <p>Điện thoại: <strong>(028) 5445 1111</strong></p>
+                </div>
+                <div class="store-info d-none" id="store-3">
+                    <h5>HUTECH - Trung tâm Nhân lực chất lượng cao</h5>
+                    <p>31/36 Ung Văn Khiêm, Phường 25, Quận Bình Thạnh, TP.HCM</p>
+                    <p>Giờ hoạt động: 07:00 - 21:00</p>
+                    <p>Điện thoại: <strong>(028) 5445 2222</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BẢN ĐỒ GOOGLE -->
+        <div class="col-md-7">
+            <div id="map" style="height: 500px; width: 100%;"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let map;
+        let marker;
+
+        const locations = {
+            1: { lat: 10.801540, lng: 106.714620 }, // HUTECH Ung Văn Khiêm
+            2: { lat: 10.841010, lng: 106.809190 }, // HUTECH Thủ Đức (CNC)
+            3: { lat: 10.802080, lng: 106.716450 }  // HUTECH Nhân lực
+        };
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: locations[1],
+                zoom: 15
+            });
+
+            marker = new google.maps.Marker({
+                position: locations[1],
+                map: map
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll('#storeList button').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+
+                    // Active button
+                    document.querySelectorAll('#storeList button').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Show correct info
+                    document.querySelectorAll('.store-info').forEach(div => div.classList.add('d-none'));
+                    document.getElementById(`store-${id}`).classList.remove('d-none');
+
+                    // Move map
+                    const pos = locations[id];
+                    map.setCenter(pos);
+                    marker.setPosition(pos);
+                });
+            });
+        });
+    </script>
+
+    <!-- Google Maps API (THAY API KEY TẠI ĐÂY) -->
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEX0ZFtuul9vBe8gH3UtG-vB66xkrqqO0&callback=initMap">
+    </script>
+}

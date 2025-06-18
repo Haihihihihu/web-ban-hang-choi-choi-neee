@@ -1,0 +1,408 @@
+﻿@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+    }
+
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+    }
+
+    .background-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .shape:nth-child(1) {
+        width: 80px;
+        height: 80px;
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .shape:nth-child(2) {
+        width: 120px;
+        height: 120px;
+        top: 70%;
+        left: 80%;
+        animation-delay: 2s;
+    }
+
+    .shape:nth-child(3) {
+        width: 60px;
+        height: 60px;
+        top: 30%;
+        left: 85%;
+        animation-delay: 4s;
+    }
+
+    @@keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        padding: 0;
+        width: 100%;
+        max-width: 450px;
+        position: relative;
+        z-index: 1;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+    }
+
+    .login-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        position: relative;
+    }
+
+    .login-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .login-header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+    }
+
+    .login-header .subtitle {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 16px;
+        font-weight: 300;
+        position: relative;
+        z-index: 1;
+    }
+
+    .login-body {
+        padding: 40px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid #e8ecf4;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.8);
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-2px);
+    }
+
+    .form-label {
+        position: absolute;
+        left: 20px;
+        top: 16px;
+        color: #8b9dc3;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        background: transparent;
+    }
+
+    .form-control:focus + .form-label,
+    .form-control:not(:placeholder-shown) + .form-label {
+        top: -8px;
+        left: 16px;
+        font-size: 12px;
+        color: #667eea;
+        background: white;
+        padding: 0 8px;
+        font-weight: 500;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        margin: 20px 0;
+    }
+
+    .remember-me input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-right: 12px;
+        accent-color: #667eea;
+    }
+
+    .remember-me label {
+        font-size: 14px;
+        color: #64748b;
+        cursor: pointer;
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-login:hover::before {
+        left: 100%;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    .divider {
+        text-align: center;
+        margin: 30px 0;
+        position: relative;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e8ecf4;
+    }
+
+    .divider span {
+        background: white;
+        padding: 0 20px;
+        color: #8b9dc3;
+        font-size: 14px;
+    }
+
+    .social-login {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .btn-social {
+        padding: 12px;
+        border: 2px solid #e8ecf4;
+        border-radius: 12px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-social:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .links {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .links a {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-block;
+        margin: 5px 15px;
+    }
+
+    .links a:hover {
+        color: #764ba2;
+        transform: translateY(-1px);
+    }
+
+    .text-danger {
+        color: #ef4444;
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .validation-summary {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 20px;
+        color: #ef4444;
+        font-size: 14px;
+    }
+
+    @@media (max-width: 768px) {
+        .login-container {
+            padding: 10px;
+        }
+        
+        .login-card {
+            margin: 10px;
+        }
+        
+        .login-header {
+            padding: 25px;
+        }
+        
+        .login-body {
+            padding: 30px;
+        }
+    }
+</style>
+
+<div class="login-container">
+    <div class="background-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    
+    <div class="login-card">
+        <div class="login-header">
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Sign in to your account</p>
+        </div>
+        
+        <div class="login-body">
+            <form id="account" method="post">
+                <div asp-validation-summary="ModelOnly" class="validation-summary text-danger" role="alert"></div>
+                
+                <div class="form-group">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder=" " />
+                    <label asp-for="Input.Email" class="form-label">Email Address</label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group">
+                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder=" " />
+                    <label asp-for="Input.Password" class="form-label">Password</label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                
+                <div class="remember-me">
+                    <input class="form-check-input" asp-for="Input.RememberMe" type="checkbox" />
+                    <label asp-for="Input.RememberMe" class="form-label">
+                        @Html.DisplayNameFor(m => m.Input.RememberMe)
+                    </label>
+                </div>
+                
+                <button id="login-submit" type="submit" class="btn-login">
+                    Sign In
+                </button>
+            </form>
+            
+            @{
+                if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                {
+                    <div class="divider">
+                        <span>or continue with</span>
+                    </div>
+                    
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                        <div class="social-login">
+                            @foreach (var provider in Model.ExternalLogins!)
+                            {
+                                <button type="submit" class="btn-social" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+                                    @provider.DisplayName
+                                </button>
+                            }
+                        </div>
+                    </form>
+                }
+            }
+            
+            <div class="links">
+                <a id="forgot-password" asp-page="./ForgotPassword">Forgot Password?</a>
+                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create Account</a>
+                <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend Confirmation</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
