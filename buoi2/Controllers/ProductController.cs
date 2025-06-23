@@ -19,14 +19,17 @@ namespace buoi2.Controllers
         }
         // Hiển thị danh sách sản phẩm
        
-        public async Task<IActionResult> Index(string searchName, string sortBy)
+        public async Task<IActionResult> Index(string searchName, string sortBy, int? categoryId)
         {
-            var products = await _productRepository.GetAllAsync(searchName, sortBy);
+            var products = await _productRepository.GetAllAsync(searchName, sortBy, categoryId);
 
             // Lưu các tham số tìm kiếm và sắp xếp để hiển thị lại trên View
             ViewBag.SearchName = searchName;
             ViewBag.SortBy = sortBy;
+            ViewBag.CategoryId = categoryId;
 
+            var categories = await _categoryRepository.GetAllAsync();
+            ViewBag.Categories = new SelectList(categories, "Id", "Name", categoryId);
             return View(products);
         }
         // Hiển thị form thêm sản phẩm mới

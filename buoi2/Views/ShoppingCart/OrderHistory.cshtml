@@ -1,0 +1,69 @@
+﻿@model List<buoi2.Models.Order>
+@using buoi2.Models
+
+<h2>Lịch sử đơn hàng</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Mã đơn hàng</th>
+                <th>Ngày đặt</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>#@order.Id</td>
+                    <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@order.TotalPrice.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                    <td>
+                        @switch (order.Status)
+                        {
+                            case buoi2.Models.Order.OrderStatus.Pending:
+                                <span class="badge bg-secondary">Chờ xác nhận</span>
+                                break;
+                            case buoi2.Models.Order.OrderStatus.Preparing:
+                                <span class="badge bg-warning">Đang chuẩn bị hàng</span>
+                                break;
+                            case buoi2.Models.Order.OrderStatus.Shipping:
+                                <span class="badge bg-primary">Đang giao hàng</span>
+                                break;
+                            case buoi2.Models.Order.OrderStatus.Delivered:
+                                <span class="badge bg-success">Đã giao hàng</span>
+                                break;
+                            case buoi2.Models.Order.OrderStatus.Cancelled:
+                                <span class="badge bg-danger">Đã hủy</span>
+                                break;
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="OrderCompleted" asp-route-id="@order.Id" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                        @if (order.Status == buoi2.Models.Order.OrderStatus.Pending || order.Status == buoi2.Models.Order.OrderStatus.Preparing)
+                        {
+                            using (Html.BeginForm("CancelOrder", "ShoppingCart", FormMethod.Post, new { style = "display:inline;" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@order.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm ml-2">Hủy đơn</button>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="text-center mt-3">
+    <a asp-controller="Product" asp-action="Index" class="btn btn-primary">Tiếp tục mua sắm</a>
+</div>

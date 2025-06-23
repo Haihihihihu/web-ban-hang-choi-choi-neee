@@ -352,6 +352,12 @@
     <section class="footer-products-section" id="footer-products">
         <div class="container">
             <h2 class="section-title footer-section-title">Sản phẩm nổi bật</h2>
+
+            <div class="text-center mb-4">
+                <a asp-controller="Product" asp-action="Index" class="btn btn-light btn-lg rounded-pill">
+                    Xem tất cả sản phẩm
+                </a>
+            </div>
             <div class="px-4 px-lg-5">
                 <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
                     @foreach (var item in Model)

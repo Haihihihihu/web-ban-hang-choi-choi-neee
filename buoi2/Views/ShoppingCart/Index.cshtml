@@ -1,26 +1,176 @@
-﻿@model ShoppingCart
-<h2>Your Cart</h2>
-<table>
-    <tr>
-        <th>Product</th>
-        <th>Quantity</th>
-        <th>Price</th>
-        <th>Total</th>
-    </tr>
-    @foreach (var item in Model.Items)
-    {
-        <tr>
-            <td>@item.Name</td>
-            <td>@item.Quantity</td>
-            <td>@item.Price</td>
-            <td>@(item.Price * item.Quantity)</td>
-            <td>
-                <a asp-action="RemoveFromCart" asp-routeproductId="@item.ProductId">Remove</a>
-            </td>
-        </tr>
-    }
-</table>
-<a asp-action="Checkout" class="btn btn-success m-2">
-    Tới trang thanh
-    toán
-</a>
+﻿@model buoi2.Models.ShoppingCart
+
+<h2>Giỏ hàng của bạn</h2>
+
+<!-- Hiển thị thông báo lỗi từ server -->
+@if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+<!-- Div để hiển thị thông báo lỗi từ AJAX -->
+<div id="error-message" class="alert alert-danger" style="display: none;"></div>
+
+<!-- Nếu giỏ hàng trống, hiển thị thông báo -->
+@if (!Model.Items.Any())
+{
+    <div class="alert alert-info">
+        Giỏ hàng của bạn đang trống.
+        <a asp-controller="Product" asp-action="Index">Mua sắm ngay!</a>
+    </div>
+}
+else
+{
+    <!-- Bảng hiển thị sản phẩm trong giỏ hàng -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Tồn kho</th>
+                <th>Giá</th>
+                <th>Thành tiền</th>
+                <th>Xóa</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>
+                        <!-- Input số lượng, tự động cập nhật khi thay đổi -->
+                        <input type="number"
+                               min="1"
+                               max="@item.Stock"
+                               value="@item.Quantity"
+                               class="form-control w-50 quantity-input"
+                               data-product-id="@item.ProductId"
+                               data-max-stock="@item.Stock" />
+                    </td>
+                    <td><span class="badge bg-info">@item.Stock</span></td>
+                    <td>@item.Price.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                    <td class="item-subtotal">@item.SubTotal.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                    <td>
+                        <a asp-action="RemoveFromCart" asp-route-productId="@item.ProductId" class="btn btn-danger btn-sm">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Tổng tiền -->
+    <h4 class="text-end">Tổng tiền: <span id="total-cart">@Model.GetTotal().ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</span> VND</h4>
+    <div class="text-end mt-3">
+        <a asp-action="Checkout" class="btn btn-success">Thanh toán</a>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Lấy antiforgery token từ form ẩn
+        function getAntiForgeryToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]').value;
+        }
+
+        // Hiển thị thông báo lỗi
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Ẩn thông báo lỗi
+        function hideError() {
+            document.getElementById('error-message').style.display = 'none';
+        }
+
+        // Lắng nghe sự kiện thay đổi số lượng
+        document.querySelectorAll(".quantity-input").forEach(input => {
+            input.addEventListener("change", function () {
+                const productId = this.dataset.productId;
+                const maxStock = parseInt(this.dataset.maxStock);
+                let qty = parseInt(this.value) || 1;
+
+                // ✅ Validation phía client trước khi gửi request
+                if (qty <= 0) {
+                    showError("Số lượng phải lớn hơn 0");
+                    this.value = 1;
+                    return;
+                }
+
+                if (qty > maxStock) {
+                    showError(`Số lượng không được vượt quá tồn kho (${maxStock})`);
+                    this.value = maxStock;
+                    qty = maxStock;
+                }
+
+                hideError();
+
+                // Gửi yêu cầu AJAX để cập nhật số lượng
+                fetch('@Url.Action("UpdateQuantity", "ShoppingCart")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    body: JSON.stringify({ productId: parseInt(productId), quantity: qty })
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Cập nhật số lượng thất bại');
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // ✅ Cập nhật thành tiền và tổng tiền
+                            this.closest('tr').querySelector('.item-subtotal').textContent =
+                                new Intl.NumberFormat('vi-VN').format(data.subtotal);
+                            document.getElementById('total-cart').textContent =
+                                new Intl.NumberFormat('vi-VN').format(data.total);
+
+                            // Cập nhật lại giá trị input để đảm bảo đồng bộ
+                            this.value = data.actualQuantity;
+                        } else {
+                            // ✅ Hiển thị lỗi từ server
+                            showError(data.message);
+                            // Reset về giá trị cũ nếu có lỗi
+                            const oldValue = this.getAttribute('data-old-value') || 1;
+                            this.value = oldValue;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        showError('Không thể cập nhật số lượng. Vui lòng thử lại.');
+                        // Reset về giá trị cũ nếu có lỗi
+                        const oldValue = this.getAttribute('data-old-value') || 1;
+                        this.value = oldValue;
+                    });
+            });
+
+            // ✅ Lưu giá trị cũ khi focus vào input
+            input.addEventListener("focus", function () {
+                this.setAttribute('data-old-value', this.value);
+            });
+
+            // ✅ Validation khi người dùng nhập trực tiếp (không cần chờ change)
+            input.addEventListener("input", function () {
+                const maxStock = parseInt(this.dataset.maxStock);
+                const currentValue = parseInt(this.value);
+
+                if (currentValue > maxStock) {
+                    showError(`Số lượng không được vượt quá tồn kho (${maxStock})`);
+                } else {
+                    hideError();
+                }
+            });
+        });
+    </script>
+}

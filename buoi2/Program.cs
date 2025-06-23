@@ -58,6 +58,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseRouting();
+builder.Services.AddSession();
+app.UseSession();
 
 app.UseAuthorization();
 app.MapRazorPages();
@@ -68,7 +70,7 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "areas",
-        pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+        pattern: "{area:exists}/{controller=ProductManager}/{action=Index}/{id?}");
 
     endpoints.MapControllerRoute(
         name: "default",

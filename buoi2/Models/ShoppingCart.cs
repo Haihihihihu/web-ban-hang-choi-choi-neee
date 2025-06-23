@@ -16,6 +16,17 @@
                 Items.Add(item);
             }
         }
+        public void UpdateQuantity(int productId, int quantity)
+        {
+            var existing = Items.FirstOrDefault(x => x.ProductId == productId);
+            if (existing != null)
+            {
+                existing.Quantity = quantity;
+            }
+        }
+
+        public decimal GetTotal() => Items.Sum(i => i.SubTotal);
+
         public void RemoveItem(int productId)
         {
             Items.RemoveAll(i => i.ProductId == productId);
