@@ -16,5 +16,10 @@ namespace buoi2.Models
 
         public DbSet<OrderDetail> OrderDetails { get; set; }
 
+        public DbSet<Wishlist> Wishlists { get; set; }
+
+        public DbSet<CartItem> CartItems { get; set; }
+
+
     }
 }

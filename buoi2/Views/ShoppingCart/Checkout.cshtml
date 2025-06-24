@@ -79,3 +79,18 @@ else
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        let valid = true;
+        document.querySelectorAll('td').forEach(td => {
+            if (td.innerText.trim() === "0") {
+                valid = false;
+            }
+        });
+        if(!valid) {
+            alert("Vui lòng loại bỏ sản phẩm có số lượng 0 trước khi thanh toán.");
+            e.preventDefault();
+        }
+    });
+</script>
