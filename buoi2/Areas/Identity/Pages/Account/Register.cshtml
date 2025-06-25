@@ -4,12 +4,14 @@
     ViewData["Title"] = "Register";
 }
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <style>
     body {
         margin: 0;
         padding: 0;
         min-height: 100vh;
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: #f0f2f5;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         overflow-x: hidden;
     }
@@ -23,6 +25,7 @@
         position: relative;
     }
 
+    /* Bạn có thể bỏ các đoạn CSS liên quan đến .background-shapes và .shape nếu không muốn hiệu ứng này */
     .background-shapes {
         position: absolute;
         top: 0;
@@ -83,270 +86,252 @@
     }
 
     .register-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        border-radius: 24px;
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+        background: #ffffff;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         padding: 0;
         width: 100%;
-        max-width: 500px;
+        max-width: 550px; /* Tăng chiều rộng tối đa của card */
         position: relative;
         z-index: 1;
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        border: none;
         overflow: hidden;
     }
 
     .register-header {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        padding: 35px;
+        background: #ffffff;
+        color: #333;
+        padding: 25px; /* Tăng padding của header */
         text-align: center;
         position: relative;
+        border-bottom: 1px solid #eee;
     }
 
         .register-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.5" fill="rgba(255,255,255,0.15)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
-            opacity: 0.4;
+            content: none;
         }
 
         .register-header h1 {
             margin: 0;
-            font-size: 32px;
-            font-weight: 700;
+            font-size: 24px; /* Tăng kích thước tiêu đề */
+            font-weight: 500;
             position: relative;
             z-index: 1;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: none;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .register-header .subtitle {
-            margin: 10px 0 0 0;
-            opacity: 0.95;
-            font-size: 16px;
-            font-weight: 300;
-            position: relative;
-            z-index: 1;
+            display: none;
         }
 
     .register-body {
-        padding: 40px;
+        padding: 30px; /* Tăng padding của phần body form */
     }
 
     .form-group {
-        margin-bottom: 25px;
+        margin-bottom: 20px; /* Tăng khoảng cách giữa các group */
         position: relative;
     }
 
     .form-control {
         width: 100%;
-        padding: 18px 20px;
-        border: 2px solid #e8ecf4;
-        border-radius: 14px;
-        font-size: 16px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: rgba(255, 255, 255, 0.9);
+        padding: 12px 12px 12px 50px; /* Tăng padding bên trái cho icon, tăng padding dọc */
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px; /* Tăng font size input */
+        transition: all 0.3s ease;
+        background: #fff;
         box-sizing: border-box;
+        height: 48px; /* Tăng chiều cao cố định của input */
     }
 
         .form-control:focus {
             outline: none;
-            border-color: #f093fb;
-            box-shadow: 0 0 0 4px rgba(240, 147, 251, 0.15);
-            background: rgba(255, 255, 255, 1);
-            transform: translateY(-3px);
+            border-color: #aaa;
+            box-shadow: none;
+            background: #fff;
+            transform: none;
         }
 
     .form-label {
         position: absolute;
-        left: 20px;
-        top: 18px;
-        color: #8b9dc3;
-        font-size: 16px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        left: 50px; /* Căn label theo icon mới */
+        top: 12px; /* Căn label theo chiều cao input mới */
+        color: #888;
+        font-size: 16px; /* Tăng kích thước label */
+        transition: all 0.2s ease;
         pointer-events: none;
         background: transparent;
-        font-weight: 500;
+        font-weight: 400;
     }
 
     .form-control:focus + .form-label,
     .form-control:not(:placeholder-shown) + .form-label {
-        top: -10px;
-        left: 16px;
-        font-size: 12px;
-        color: #f093fb;
+        top: -10px; /* Đẩy label lên trên nhiều hơn */
+        left: 15px; /* Di chuyển label vào góc */
+        font-size: 12px; /* Kích thước label khi nổi */
+        color: #555;
         background: white;
-        padding: 0 8px;
+        padding: 0 5px;
         font-weight: 600;
+        z-index: 2;
     }
+
+    /* Icon Styling */
+    .form-group i {
+        position: absolute;
+        left: 20px; /* Vị trí icon (tăng) */
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+        font-size: 18px; /* Tăng kích thước icon */
+        z-index: 3;
+    }
+
+    /* Thêm các icon tương ứng */
+    .form-group .fa-user::before,
+    .form-group .fa-envelope::before,
+    .form-group .fa-phone::before,
+    .form-group .fa-lock::before {
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+    }
+
 
     .btn-register {
         width: 100%;
-        padding: 18px;
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        border: none;
-        border-radius: 14px;
-        font-size: 18px;
-        font-weight: 700;
+        padding: 15px; /* Tăng padding nút */
+        background: #f0f0f0;
+        color: #555;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 18px; /* Tăng font size nút */
+        font-weight: 500;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s ease;
         position: relative;
         overflow: hidden;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-top: 10px;
+        text-transform: none;
+        letter-spacing: 0;
+        margin-top: 30px; /* Tăng khoảng cách từ trường cuối đến nút */
     }
 
         .btn-register::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.6s;
-        }
-
-        .btn-register:hover::before {
-            left: 100%;
+            content: none;
         }
 
         .btn-register:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(240, 147, 251, 0.4);
-            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+            transform: none;
+            box-shadow: none;
+            background: #e0e0e0;
+            color: #333;
         }
 
         .btn-register:active {
-            transform: translateY(-1px);
+            transform: none;
         }
 
     .divider {
-        text-align: center;
-        margin: 35px 0;
-        position: relative;
+        display: none;
     }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #e8ecf4, transparent);
-        }
-
-        .divider span {
-            background: white;
-            padding: 0 25px;
-            color: #8b9dc3;
-            font-size: 14px;
-            font-weight: 500;
-        }
 
     .social-register {
-        display: grid;
-        gap: 12px;
-        margin-bottom: 25px;
+        display: none;
     }
-
-    .btn-social {
-        padding: 14px;
-        border: 2px solid #e8ecf4;
-        border-radius: 12px;
-        background: white;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-size: 15px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        color: #64748b;
-    }
-
-        .btn-social:hover {
-            border-color: #f093fb;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.2);
-            color: #f093fb;
-        }
 
     .login-link {
         text-align: center;
-        margin-top: 25px;
-        padding: 20px;
-        background: rgba(240, 147, 251, 0.05);
-        border-radius: 12px;
-        border: 1px solid rgba(240, 147, 251, 0.1);
+        margin-top: 25px; /* Tăng khoảng cách từ form */
+        padding: 0;
+        background: transparent;
+        border: none;
     }
 
         .login-link p {
             margin: 0;
-            color: #64748b;
-            font-size: 15px;
+            color: #777;
+            font-size: 15px; /* Tăng font size text */
         }
 
         .login-link a {
-            color: #f093fb;
+            color: #555;
             text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            margin-left: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-left: 5px;
         }
 
             .login-link a:hover {
-                color: #f5576c;
+                color: #000;
                 text-decoration: underline;
             }
 
     .text-danger {
-        color: #ef4444;
-        font-size: 12px;
-        margin-top: 6px;
+        color: #dc3545;
+        font-size: 13px; /* Tăng font size lỗi */
+        margin-top: 5px;
         display: block;
         font-weight: 500;
     }
 
     .validation-summary {
-        background: rgba(239, 68, 68, 0.1);
-        border: 2px solid rgba(239, 68, 68, 0.2);
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 25px;
-        color: #ef4444;
-        font-size: 14px;
+        background: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.2);
+        border-radius: 4px;
+        padding: 12px; /* Tăng padding */
+        margin-bottom: 20px; /* Tăng khoảng cách */
+        color: #dc3545;
+        font-size: 14px; /* Tăng font size */
         font-weight: 500;
     }
 
     .password-strength {
-        margin-top: 8px;
-        font-size: 12px;
-        color: #8b9dc3;
+        margin-top: 8px; /* Tăng khoảng cách */
+        font-size: 12px; /* Tăng kích thước chữ */
+        color: #888;
     }
 
     .strength-bar {
-        height: 3px;
-        background: #e8ecf4;
+        height: 3px; /* Tăng chiều cao thanh */
+        background: #eee;
         border-radius: 2px;
         margin-top: 5px;
-        overflow: hidden;
     }
 
     .strength-fill {
         height: 100%;
-        background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+        background: linear-gradient(90deg, #dc3545, #ffc107, #28a745);
         width: 0%;
         transition: width 0.3s ease;
         border-radius: 2px;
+    }
+
+    /* Adjustments for the Role select box label to align with other labels */
+    .form-group .form-label.static-label {
+        position: absolute; /* Chuyển về absolute để căn chỉnh */
+        left: 20px; /* Cùng vị trí với icon */
+        top: 12px; /* Cùng vị trí với label của input */
+        padding: 0;
+        background: transparent;
+        font-size: 16px; /* Kích thước chữ như input */
+        color: #888;
+        font-weight: 400;
+        pointer-events: none; /* Không chặn click */
+    }
+
+    /* When the select box is selected/has a value, lift the label */
+    .form-group select.form-control:focus + .form-label.static-label,
+    .form-group select.form-control:not([value=""]) + .form-label.static-label {
+        top: -10px; /* Đẩy lên trên */
+        left: 15px; /* Dịch vào góc */
+        font-size: 12px; /* Nhỏ lại */
+        color: #555;
+        background: white;
+        padding: 0 5px;
+        font-weight: 600;
     }
 
     @@media (max-width: 768px) {
@@ -355,29 +340,66 @@
         }
 
         .register-card {
-            margin: 10px;
+            margin: 0;
             max-width: 100%;
         }
 
         .register-header {
-            padding: 30px 25px;
+            padding: 15px;
         }
 
             .register-header h1 {
-                font-size: 28px;
+                font-size: 20px;
             }
 
         .register-body {
-            padding: 30px 25px;
+            padding: 20px;
         }
 
-        .form-control {
-            padding: 16px 18px;
+        .form-control::placeholder {
+            color: #888; /* Màu của placeholder */
+            opacity: 1; /* Đảm bảo placeholder hiển thị rõ ràng */
         }
+
 
         .form-label {
-            top: 16px;
-            left: 18px;
+            top: 10px;
+            left: 45px;
+            font-size: 15px;
+        }
+
+        .form-control:focus + .form-label,
+        .form-control:not(:placeholder-shown) + .form-label {
+            top: -8px;
+            left: 12px;
+            font-size: 10px;
+        }
+
+        .form-group i {
+            left: 18px; /* Điều chỉnh vị trí icon cho mobile */
+            font-size: 16px;
+        }
+
+        .btn-register {
+            padding: 12px;
+            font-size: 16px;
+        }
+
+        .login-link p {
+            font-size: 14px;
+        }
+
+        .form-group .form-label.static-label {
+            left: 18px; /* Điều chỉnh vị trí cho mobile */
+            top: 10px;
+            font-size: 15px;
+        }
+
+        .form-group select.form-control:focus + .form-label.static-label,
+        .form-group select.form-control:not([value=""]) + .form-label.static-label {
+            top: -8px;
+            left: 12px;
+            font-size: 10px;
         }
     }
 </style>
@@ -392,8 +414,7 @@
 
     <div class="register-card">
         <div class="register-header">
-            <h1>Join Us Today</h1>
-            <p class="subtitle">Create your account to get started</p>
+            <h1>ĐĂNG KÝ THÀNH VIÊN MỚI</h1>
         </div>
 
         <div class="register-body">
@@ -401,20 +422,25 @@
                 <div asp-validation-summary="ModelOnly" class="validation-summary text-danger" role="alert"></div>
 
                 <div class="form-group">
+                    <i class="fas fa-user"></i>
                     <input asp-for="Input.FullName" class="form-control" autocomplete="name" aria-required="true" placeholder=" " />
-                    <label asp-for="Input.FullName" class="form-label">Full Name</label>
+                    <label asp-for="Input.FullName" class="form-label">Tên</label>
                     <span asp-validation-for="Input.FullName" class="text-danger"></span>
                 </div>
 
+               
+
                 <div class="form-group">
+                    <i class="fas fa-envelope"></i>
                     <input asp-for="Input.Email" class="form-control" autocomplete="email" aria-required="true" placeholder=" " />
-                    <label asp-for="Input.Email" class="form-label">Email Address</label>
+                    <label asp-for="Input.Email" class="form-label">Email</label>
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
+                    <i class="fas fa-lock"></i>
                     <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder=" " />
-                    <label asp-for="Input.Password" class="form-label">Password</label>
+                    <label asp-for="Input.Password" class="form-label">Mật khẩu</label>
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                     <div class="password-strength">
                         <div class="strength-bar">
@@ -425,42 +451,35 @@
                 </div>
 
                 <div class="form-group">
+                    <i class="fas fa-lock"></i>
                     <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder=" " />
-                    <label asp-for="Input.ConfirmPassword" class="form-label">Confirm Password</label>
+                    <label asp-for="Input.ConfirmPassword" class="form-label">Xác nhận mật khẩu</label>
                     <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
                 </div>
-                <div class="form-floating">
+
+                <div class="form-group">
+                    <i class="fas fa-user-tag"></i> <!-- Added icon for Role selection -->
                     <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-control">
-                        <option disabled selected>-Selected Role-</option>
+                        <option value="" disabled selected>-Chọn vai trò-</option> <!-- Added empty value for better placeholder behavior -->
                     </select>
+                    <label asp-for="Input.Role" class="form-label static-label">Vai trò</label>
+                    <span asp-validation-for="Input.Role" class="text-danger"></span>
                 </div>
+
                 <button id="registerSubmit" type="submit" class="btn-register">
-                    Create Account
+                    Đăng ký
                 </button>
             </form>
 
             @{
                 if ((Model.ExternalLogins?.Count ?? 0) > 0)
                 {
-                    <div class="divider">
-                        <span>or register with</span>
-                    </div>
-
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                        <div class="social-register">
-                            @foreach (var provider in Model.ExternalLogins!)
-                            {
-                                <button type="submit" class="btn-social" name="provider" value="@provider.Name" title="Register using your @provider.DisplayName account">
-                                    @provider.DisplayName
-                                </button>
-                            }
-                        </div>
-                    </form>
+                    @* Code cho social logins (bị ẩn theo yêu cầu) *@
                 }
             }
 
             <div class="login-link">
-                <p>Already have an account? <a href="/Identity/Account/Login">Sign in here</a></p>
+                <p>Bạn đã có tài khoản? <a href="/Identity/Account/Login">Đăng nhập tại đây</a></p>
             </div>
         </div>
     </div>

@@ -14,25 +14,21 @@ namespace buoi2.Areas.Admin.Controllers
     {
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
-        public ProductManagerController(IProductRepository productRepository,
-      ICategoryRepository categoryRepository)
+
+        public ProductManagerController(IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
-          
         }
 
-        public async Task<IActionResult> Index(string searchName, string sortBy)
+        // Hiển thị danh sách sản phẩm trong khu vực Admin
+        public async Task<IActionResult> Index()
         {
-            var products = await _productRepository.GetAllAsync(searchName, sortBy);
-
-            // Lưu các tham số tìm kiếm và sắp xếp để hiển thị lại trên View
-            ViewBag.SearchName = searchName;
-            ViewBag.SortBy = sortBy;
-
+            var products = await _productRepository.GetAllAsync();
             return View(products);
         }
-        // Hiển thị form thêm sản phẩm mới
+
+        // Hiển thị form thêm sản phẩm mới trong khu vực Admin
         public async Task<IActionResult> Add()
         {
             var categories = await _categoryRepository.GetAllAsync();
@@ -64,14 +60,12 @@ namespace buoi2.Areas.Admin.Controllers
         // Lưu hình ảnh
         private async Task<string> SaveImage(IFormFile image)
         {
-            // Ensure the images directory exists
             var imagesDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
             if (!Directory.Exists(imagesDir))
             {
                 Directory.CreateDirectory(imagesDir);
             }
 
-            // Generate a unique filename to avoid conflicts
             var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
             var savePath = Path.Combine(imagesDir, fileName);
 

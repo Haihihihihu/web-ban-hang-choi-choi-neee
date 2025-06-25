@@ -8,54 +8,295 @@
 <!-- Font Awesome for icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<div class="container mt-4">
-    <h2 class="text-center mb-4" style="color: #4a00e0;">
-        <i class="fas fa-box-open me-2"></i>Sản phẩm
-    </h2>
+<style>
+    body {
+        background-color: #ffffff;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .shop-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #ffffff;
+    }
+    
+    .shop-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 20px 0;
+        border-bottom: 1px solid #e8e8e8;
+    }
+    
+    .shop-title {
+        font-size: 2.5rem;
+        font-weight: 300;
+        color: #333;
+        margin: 0;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+    
+    .search-filter-section {
+        background-color: #f8f9fa;
+        padding: 25px;
+        border-radius: 0;
+        margin-bottom: 40px;
+        border: 1px solid #e9ecef;
+    }
+    
+    .search-input {
+        height: 45px;
+        border: 1px solid #ddd;
+        border-radius: 0;
+        font-size: 14px;
+        padding: 0 15px;
+        background-color: #ffffff;
+    }
+    
+    .search-input:focus {
+        border-color: #333;
+        box-shadow: none;
+        outline: none;
+    }
+    
+    .filter-select {
+        height: 45px;
+        border: 1px solid #ddd;
+        border-radius: 0;
+        font-size: 14px;
+        padding: 0 15px;
+        background-color: #ffffff;
+    }
+    
+    .filter-select:focus {
+        border-color: #333;
+        box-shadow: none;
+        outline: none;
+    }
+    
+    .search-btn {
+        height: 45px;
+        background-color: #333;
+        border: none;
+        color: white;
+        font-size: 14px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 0;
+        transition: background-color 0.3s ease;
+    }
+    
+    .search-btn:hover {
+        background-color: #000;
+    }
+    
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+        margin-bottom: 50px;
+    }
+    
+    .product-card {
+        background-color: #ffffff;
+        border: 1px solid #e8e8e8;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .product-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .product-image-container {
+        position: relative;
+        width: 100%;
+        height: 350px;
+        overflow: hidden;
+        background-color: #f8f9fa;
+    }
+    
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .product-image {
+        transform: scale(1.05);
+    }
+    
+    .new-arrival-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #333;
+        color: white;
+        padding: 5px 12px;
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .product-info {
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .product-name {
+        font-size: 14px;
+        font-weight: 400;
+        color: #333;
+        margin: 0 0 8px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        line-height: 1.4;
+    }
+    
+    .product-description {
+        font-size: 13px;
+        color: #666;
+        margin: 0 0 12px 0;
+        line-height: 1.4;
+        height: 35px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    
+    .product-price {
+        font-size: 16px;
+        color: #333;
+        font-weight: 600;
+        margin: 0 0 20px 0;
+    }
+    
+    .product-actions {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .action-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: 1px solid #333;
+        background-color: transparent;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        min-width: 70px;
+    }
+    
+    .action-btn:hover {
+        background-color: #333;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .action-btn.btn-edit {
+        border-color: #28a745;
+        color: #28a745;
+    }
+    
+    .action-btn.btn-edit:hover {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .action-btn.btn-delete {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+    
+    .action-btn.btn-delete:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .no-products {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+        font-size: 18px;
+    }
+    
+    
+</style>
 
-    <!-- Tìm kiếm & Sắp xếp -->
-    <form method="get" asp-action="Index" class="row mb-4">
-        <div class="col-md-6">
-            <input type="text" name="searchName" value="@currentSearch" class="form-control" placeholder="Tìm theo tên sản phẩm..." />
-        </div>
-        <div class="col-md-4">
-            <select name="sortBy" class="form-select">
-                <option value="">-- Sắp xếp theo giá --</option>
-               <option value="price_asc" selected="@(currentSort == "price_asc")">Giá tăng dần</option>
-                <option value="price_desc" selected="@(currentSort == "price_desc")">Giá giảm dần</option>
-
-            </select>
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+<div class="shop-container">
+    <div class="shop-header">
+        <h1 class="shop-title">FootBall Store</h1>
+    </div>
+    
+    <!-- Search & Filter Section -->
+    <form method="get" asp-action="Index" class="search-filter-section">
+        <div class="row align-items-end">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <label class="form-label text-muted text-uppercase" style="font-size: 12px; font-weight: 500; letter-spacing: 1px;">Search Products</label>
+                <input type="text" name="searchName" value="@currentSearch" class="form-control search-input" placeholder="Enter product name..." />
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <label class="form-label text-muted text-uppercase" style="font-size: 12px; font-weight: 500; letter-spacing: 1px;">Sort By Price</label>
+                <select name="sortBy" class="form-select filter-select">
+                    <option value="">-- Default --</option>
+                    <option value="price_asc" selected="@(currentSort == "price_asc")">Giá Tăng Dần </option>
+                    <option value="price_desc" selected="@(currentSort == "price_desc")">Giá Giảm Dần </option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn search-btn w-100">Search</button>
+            </div>
         </div>
     </form>
-
-    <div class="row">
-        @foreach (var product in Model)
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow">
-                    <img src="@(product.ImageUrl ?? "/images/default-product.jpg")"
-                         class="card-img-top"
-                         alt="@product.Name"
-                         style="height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
-                    <div class="card-body">
-                        <h5 class="card-title">@product.Name</h5>
-                        <p class="card-text text-muted">@product.Description</p>
-                        <p class="card-text text-primary font-weight-bold">$@product.Price</p>
+    
+    <!-- Products Grid -->
+    @if (Model.Any())
+    {
+        <div class="products-grid">
+            @foreach (var product in Model)
+            {
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <img src="@(product.ImageUrl ?? "/images/default-product.jpg")"
+                             class="product-image"
+                             alt="@product.Name">
+                        <div class="new-arrival-badge">Hot</div>
                     </div>
-                    <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
-                        <a asp-action="Display" asp-route-id="@product.Id" class="btn btn-sm btn-outline-primary custom-btn">View</a>
-                        @if (User.IsInRole("Admin"))
-                        {
-
-                            <a asp-action="Update" asp-route-id="@product.Id" class="btn btn-sm btn-outline-success custom-btn">Edit</a>
-                            <a asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-outline-danger custom-btn"
-                            onclick="return confirm('Are you sure you want to delete this product?');">Delete</a> }
+                    <div class="product-info">
+                        <h3 class="product-name">@product.Name</h3>
+                        <p class="product-description">@product.Description</p>
+                        <div class="product-price">$@product.Price</div>
+                        <div class="product-actions">
+                            <a asp-action="Display" asp-route-id="@product.Id" class="action-btn">View</a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Update" asp-route-id="@product.Id" class="action-btn btn-edit">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@product.Id" class="action-btn btn-delete"
+                                   onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="no-products">
+            <i class="fas fa-search mb-3" style="font-size: 48px; color: #ccc;"></i>
+            <p>No products found matching your criteria.</p>
+        </div>
+    }
 </div>

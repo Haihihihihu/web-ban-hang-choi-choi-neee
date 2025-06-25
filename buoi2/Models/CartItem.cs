@@ -11,5 +11,8 @@
         public int Quantity { get; set; }
 
         public decimal SubTotal => Price * Quantity;
+
+        public Product Product { get; set; }
+
     }
 }

@@ -1,3 +1,109 @@
 ﻿@model int
-<h2>Order Completed</h2>
-<p>Your order with ID @Model has been placed successfully.</p>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+    /* Bỏ các style body cũ */
+    /* body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; /* <-- Đây là nguyên nhân chính gây lỗi */
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    margin: 0;
+    }
+
+    */
+    /* Thêm một container cho toàn bộ nội dung của trang */
+    .page-wrapper {
+        min-height: calc(100vh - /* chiều cao của header/navbar */ - /* chiều cao của footer */ ); /* Điều chỉnh để đảm bảo đủ chiều cao */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px; /* Thêm padding nếu cần */
+        box-sizing: border-box; /* Quan trọng để padding không làm tăng kích thước */
+    }
+
+    .order-complete-container {
+        text-align: center;
+        padding: 50px;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        max-width: 600px;
+        width: 90%;
+        margin: auto; /* Để căn giữa container trong page-wrapper */
+    }
+
+    .order-complete-icon {
+        color: #28a745; /* Green for success */
+        font-size: 70px;
+        margin-bottom: 25px;
+        animation: fadeInScale 0.8s ease-out;
+    }
+
+    .order-complete-title {
+        font-size: 2.2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .order-complete-message {
+        font-size: 1.1rem;
+        color: #555;
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+
+    .order-id {
+        font-weight: bold;
+        color: #007bff; /* A distinct color for the ID */
+    }
+
+    .back-to-shop-btn {
+        display: inline-block;
+        padding: 12px 25px;
+        background-color: #333;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+        .back-to-shop-btn:hover {
+            background-color: #000;
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: white; /* Ensure text color remains white on hover */
+        }
+
+    @@keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="order-complete-container">
+        <i class="fas fa-check-circle order-complete-icon"></i>
+        <h2 class="order-complete-title">Cảm ơn bạn đã đặt hàng!</h2>
+        <p class="order-complete-message">
+            Đơn hàng của bạn với mã số <span class="order-id">@Model</span> đã được đặt thành công.
+            Chúng tôi sẽ xử lý đơn hàng của bạn trong thời gian sớm nhất.
+            Chúc bạn có một ngày vui vẻ!
+        </p>
+        <a href="/" class="back-to-shop-btn">Tiếp tục mua sắm</a>
+    </div>
+</div>

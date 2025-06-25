@@ -16,7 +16,7 @@
             <div class="container">
                 <!-- Logo thương hiệu -->
                 <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-cart-fill me-2"></i> Web bán hàng
+                    <i class="bi bi-cart-fill me-2"></i> FOOTBALL STORE
                 </a>
                 <!-- Toggle button -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -27,13 +27,13 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item">
-                            <a class="nav-link active text-primary" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link active text-primary" asp-area="" asp-controller="Home" asp-action="Index">Trang Chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Chính Sách</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Index">Product</a>
+                            <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Index">Sản Phẩm</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>
@@ -41,7 +41,7 @@
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Add">Add</a>
+                                <a class="nav-link" asp-area="" asp-controller="admin" asp-action="productmanager">Thêm Sản Phẩm</a>
                             </li>
                         }
                     </ul>
