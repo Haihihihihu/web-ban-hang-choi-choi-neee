@@ -8,7 +8,6 @@
 }
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-
 @Html.AntiForgeryToken() <!-- CSRF Token -->
 <!-- Form Tìm kiếm, filter, sort -->
 <form method="get" asp-action="Index" class="row mb-4">
@@ -47,10 +46,29 @@
                      alt="@product.Name"
                      style="height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;" />
 
-                <div class="card-body">
-                    <h5 class="card-title">@product.Name</h5>
-                    <p class="card-text text-muted">@product.Description</p>
-                    <p class="card-text text-primary font-weight-bold">@product.Price.ToString("N0") đ</p>
+                <div class="card-body d-flex justify-content-between">
+                    <!-- Thông tin sản phẩm bên trái -->
+                    <div class="flex-grow-1">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text text-muted mb-1">@product.Description</p>
+                        <p class="card-text text-primary font-weight-bold mb-0">@product.Price.ToString("N0") đ</p>
+                    </div>
+
+                    <!-- Rating bên phải -->
+                    <div class="text-center ms-3" style="min-width: 60px;">
+                        @if (product.AverageRating > 0)
+                        {
+                            <p class="m-0 text-warning" style="font-size:1.2rem;">
+                                @(product.AverageRating?.ToString("0.0") ?? "0.0") ★
+                            </p>
+
+                            <small class="text-muted">(@product.ReviewCount lượt)</small>
+                        }
+                        else
+                        {
+                            <small class="text-muted">Chưa có<br />đánh giá</small>
+                        }
+                    </div>
                 </div>
 
                 <div class="card-footer bg-transparent border-0 d-flex justify-content-between flex-wrap gap-2">
@@ -61,7 +79,7 @@
 
                     @if (!User.IsInRole("Admin"))
                     {
-                        <!-- Nút giỏ hàng (AJAX) -->
+                        <!-- Nút giỏ hàng -->
                         <button type="button"
                                 class="btn btn-sm btn-outline-warning add-to-cart-btn"
                                 data-product-id="@product.Id"
@@ -69,7 +87,7 @@
                             <i class="fas fa-cart-plus me-1"></i> Giỏ hàng
                         </button>
 
-                        <!-- Nút yêu thích (AJAX) -->
+                        <!-- Nút yêu thích -->
                         <button type="button"
                                 class="btn btn-sm btn-outline-danger add-to-wishlist-btn"
                                 data-product-id="@product.Id"
@@ -95,17 +113,13 @@
     <script>
         const token = '@Antiforgery.GetAndStoreTokens(Context).RequestToken';
 
-
         // Xử lý nút thêm vào danh sách yêu thích
         document.querySelectorAll(".add-to-wishlist-btn").forEach(btn => {
             btn.addEventListener("click", function () {
                 const productId = this.dataset.productId;
-
                 fetch('@Url.Action("Add", "Wishlist")?productId=' + productId, {
                     method: 'POST',
-                    headers: {
-                        'RequestVerificationToken': token
-                    }
+                    headers: { 'RequestVerificationToken': token }
                 })
                     .then(res => {
                         if (res.ok) {
@@ -123,7 +137,6 @@
         document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
             btn.addEventListener("click", async function () {
                 const productId = this.dataset.productId;
-
                 try {
                     const response = await fetch('@Url.Action("AddToCart", "ShoppingCart")', {
                         method: 'POST',
@@ -137,10 +150,9 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        // Đổi nút sang đã thêm thành công
                         this.innerHTML = '<i class="fas fa-check"></i> Đã thêm';
                         this.classList.add('btn-success');
-                        this.disabled = true; // không cho nhấn lại
+                        this.disabled = true;
                     } else {
                         alert(data.message || "Không thể thêm vào giỏ hàng.");
                     }

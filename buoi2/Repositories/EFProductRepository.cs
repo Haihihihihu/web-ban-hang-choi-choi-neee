@@ -70,5 +70,32 @@ namespace buoi2.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(int productId)
+        {
+            return await _context.ProductReviews
+                                 .Where(r => r.ProductId == productId)
+                                 .OrderByDescending(r => r.CreatedAt)
+                                 .ToListAsync();    
+        }
+
+        public async Task AddReviewAsync(ProductReview review)
+        {
+            _context.ProductReviews.Add(review);
+            await _context.SaveChangesAsync();
+        }
+        public async Task<ProductReview> GetReviewByIdAsync(int id)
+        {
+            return await _context.ProductReviews.FindAsync(id);
+        }
+        public async Task DeleteReviewAsync(int id)
+        {
+            var review = await _context.ProductReviews.FindAsync(id);
+            if (review != null)
+            {
+                _context.ProductReviews.Remove(review);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

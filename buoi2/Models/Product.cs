@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace buoi2.Models
 {
@@ -18,6 +19,13 @@ namespace buoi2.Models
         public Category? Category { get; set; }
 
         public int Stock { get; set; }
+
+        [NotMapped]
+        public double? AverageRating { get; set; }
+
+        [NotMapped]
+        public int ReviewCount { get; set; }
+
 
 
     }

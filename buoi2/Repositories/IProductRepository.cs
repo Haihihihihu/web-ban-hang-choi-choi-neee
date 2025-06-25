@@ -11,6 +11,12 @@ namespace buoi2.Repositories
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task DeleteAsync(int id);
+        Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(int productId);
+        Task AddReviewAsync(ProductReview review);
+
+        Task<ProductReview> GetReviewByIdAsync(int id);
+
+        Task DeleteReviewAsync(int id);
     }
     
 }

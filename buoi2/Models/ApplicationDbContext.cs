@@ -20,6 +20,6 @@ namespace buoi2.Models
 
         public DbSet<CartItem> CartItems { get; set; }
 
-
+        public DbSet<ProductReview> ProductReviews { get; set; }
     }
 }

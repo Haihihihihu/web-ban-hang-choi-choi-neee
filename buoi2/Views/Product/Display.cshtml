@@ -1,9 +1,9 @@
 ﻿@model buoi2.Models.Product
 @{
-    ViewData["Title"] = "Display";
+    ViewData["Title"] = "Product Details";
 }
 
-<!-- Add Font Awesome for icons -->
+<!-- Font Awesome for icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <div class="container mt-5">
@@ -15,94 +15,138 @@
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-body">
-                    <!-- Product Information -->
+
+                    <!-- Product Info -->
                     <div class="row">
-                        <!-- Images Section -->
                         <div class="col-md-6">
-                            <!-- Main Image -->
                             @if (!string.IsNullOrEmpty(Model.ImageUrl))
                             {
-                                <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded mb-3" style="max-height: 300px; object-fit: cover; width: 100%;">
+                                <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded mb-3" style="max-height: 300px; object-fit: cover; width: 100%;" />
                             }
                             else
                             {
-                                <img src="/images/default-product.jpg" alt="Default Image" class="img-fluid rounded mb-3" style="max-height: 300px; object-fit: cover; width: 100%;">
+                                <img src="/images/default-product.jpg" alt="Default Image" class="img-fluid rounded mb-3" style="max-height: 300px; object-fit: cover; width: 100%;" />
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="card-title">@Model.Name</h4>
+                            <p class="card-text text-muted mb-2"><strong>Price:</strong> $@Model.Price</p>
+                            <p class="card-text mb-2"><strong>Description:</strong> @Model.Description</p>
+                            @if (ViewBag.AverageRating > 0)
+                            {
+                                <p class="text-warning mb-2" style="font-size:1.1rem;">
+                                    <strong>Điểm trung bình:</strong> @(((double)ViewBag.AverageRating).ToString("0.0")) ★
+                                </p>
+
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-2"><em>Chưa có đánh giá nào</em></p>
                             }
 
-                            <!-- Additional Images (if any) -->
-                           
-
-                        <!-- Product Details Section -->
-                        <div class="col-md-6">
-                            <h4 class="card-title" style="font-size: 1.25rem; color: #333;">@Model.Name</h4>
-                            <p class="card-text text-muted mb-2" style="font-size: 0.9rem;"><strong>Price:</strong> $@Model.Price</p>
-                            <p class="card-text" style="font-size: 0.9rem;"><strong>Description:</strong> @Model.Description</p>
                         </div>
                     </div>
-                </div>
 
-                <!-- Back to List Button -->
-                <div class="card-footer bg-transparent border-0 text-center">
-                    <a asp-action="Index" class="btn btn-outline-primary px-4 custom-btn">Back to List</a>
+                    <!-- Back to List -->
+                    <div class="text-center mt-4">
+                        <a asp-action="Index" class="btn btn-outline-primary px-4 custom-btn">Back to List</a>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- Reviews list -->
+                    <!-- Reviews list -->
+                    <h5 class="mb-3">Đánh giá sản phẩm</h5>
+                    @if (ViewBag.Reviews != null && ViewBag.Reviews.Count > 0)
+                    {
+                        <ul class="list-group mb-3">
+                            @foreach (var review in ViewBag.Reviews)
+                            {
+                                <li class="list-group-item position-relative">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>Rating: @review.Rating ⭐</strong>
+                                            <span class="text-muted ms-2">@review.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                                        </div>
+
+                                        <!-- Nút xóa chỉ xuất hiện nếu comment của user hiện tại -->
+                                        @if (User.Identity.IsAuthenticated && review.UserName == User.Identity.Name)
+                                        {
+                                            <form asp-action="DeleteReview" asp-route-id="@review.Id" method="post" class="m-0 p-0">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn chắc chắn muốn xóa đánh giá này?');">
+                                                    Xóa
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                    <p class="mt-2 mb-0">@review.Comment</p>
+                                    <small class="text-muted">By @review.UserName</small>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>Chưa có đánh giá nào.</p>
+                    }
+
+                    <!-- Form thêm review -->
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <h6 class="mt-4">Thêm đánh giá của bạn:</h6>
+                        <form asp-action="AddReview" method="post">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <div class="mb-2">
+                                <label for="rating">Điểm (1-5):</label>
+                                <select id="rating" name="rating" class="form-select" required>
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label for="content">Nội dung:</label>
+                                <textarea id="content" name="comment" class="form-control" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-2">Gửi đánh giá</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p class="text-muted mt-3">
+                            Bạn cần <a href="/Identity/Account/Login">Đăng nhập</a> để viết đánh giá.
+                        </p>
+                    }
+
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Custom CSS for styling -->
+<!-- Styles -->
 <style>
-    /* Gradient Background */
     body {
         background: linear-gradient(to right, #a1c4fd, #c2e9fb);
         min-height: 100vh;
     }
 
-    /* Card Styling */
     .card {
         border: none;
         border-radius: 10px;
         background-color: #fff;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s, box-shadow 0.2s;
     }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
 
     .card-body {
         padding: 2rem;
     }
 
-    .card-title {
-        font-weight: 600;
-    }
-
-    .card-text {
-        margin-bottom: 0.5rem;
-    }
-
-    /* Button Styling */
     .custom-btn {
         min-width: 80px;
         font-size: 0.9rem;
         border-radius: 5px;
-        transition: background-color 0.3s, color 0.3s;
-    }
-
-    .btn-outline-primary {
-        border-color: #007bff;
-        color: #007bff;
-    }
-    
-        .btn-outline-primary:hover {
-            background-color: #007bff;
-            color: white;
-        }
-
-    .gap-2 {
-        gap: 0.5rem;
     }
 </style>
