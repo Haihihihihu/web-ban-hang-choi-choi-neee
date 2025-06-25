@@ -1,3 +1,206 @@
+﻿@model ShoppingCart
+
+<style>
+    .cart-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        background-color: #ffffff;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .cart-header {
+        text-align: center;
+        margin-bottom: 50px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e8e8e8;
+    }
+
+    .cart-title {
+        font-size: 2.2rem;
+        font-weight: 300;
+        color: #333;
+        margin: 0;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .cart-table-container {
+        background-color: #ffffff;
+        border: 1px solid #e8e8e8;
+        margin-bottom: 40px;
+        overflow-x: auto;
+    }
+
+    .cart-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+        background-color: #ffffff;
+    }
+
+    .cart-table th {
+        background-color: #f8f9fa;
+        color: #333;
+        font-weight: 500;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 20px 15px;
+        text-align: left;
+        border-bottom: 2px solid #e8e8e8;
+    }
+
+    .cart-table td {
+        padding: 20px 15px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #333;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .cart-table tr:hover {
+        background-color: #fafafa;
+    }
+
+    .product-name {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .quantity-cell {
+        font-weight: 600;
+        color: #666;
+    }
+
+    .price-cell {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .total-cell {
+        font-weight: 600;
+        color: #333;
+        font-size: 15px;
+    }
+
+    .remove-btn {
+        background-color: transparent;
+        border: 1px solid #dc3545;
+        color: #dc3545;
+        padding: 8px 16px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .remove-btn:hover {
+        background-color: #dc3545;
+        color: white;
+        text-decoration: none;
+    }
+
+    .checkout-section {
+        text-align: center;
+        padding: 30px 0;
+        border-top: 1px solid #e8e8e8;
+    }
+
+    .checkout-btn {
+        background-color: #333;
+        border: none;
+        color: white;
+        padding: 15px 40px;
+        font-size: 14px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        margin: 10px;
+    }
+
+    .checkout-btn:hover {
+        background-color: #000;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .empty-cart {
+        text-align: center;
+        padding: 80px 20px;
+        color: #666;
+    }
+
+    .empty-cart i {
+        font-size: 64px;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    .empty-cart p {
+        font-size: 18px;
+        margin: 0;
+    }
+
+   
+</style>
+
+<div class="cart-container">
+    <div class="cart-header">
+        <h2 class="cart-title">Your Cart</h2>
+    </div>
+
+    @if (Model.Items != null && Model.Items.Any())
+    {
+        <div class="cart-table-container">
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="product-name">@item.Name</td>
+                            <td class="quantity-cell">@item.Quantity</td>
+                            <td class="price-cell">$@item.Price</td>
+                            <td class="total-cell">$@(item.Price * item.Quantity)</td>
+                            <td>
+                                <a asp-action="RemoveFromCart" asp-route-productId="@item.ProductId" class="remove-btn">Remove</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="checkout-section">
+            <a asp-action="Checkout" class="checkout-btn">
+                Tới trang thanh toán
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="empty-cart">
+            <i class="fas fa-shopping-bag"></i>
+            <p>Your cart is empty</p>
+        </div>
+    }
+</div>
 ﻿@model buoi2.Models.ShoppingCart
 
 @{

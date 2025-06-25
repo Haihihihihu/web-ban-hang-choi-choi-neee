@@ -17,6 +17,8 @@
         public decimal SubTotal => Price * Quantity;
 
         public Product Product { get; set; }
+
+
         public ApplicationUser User { get; set; }
     }
 }

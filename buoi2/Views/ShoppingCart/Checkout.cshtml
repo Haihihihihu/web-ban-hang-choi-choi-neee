@@ -1,3 +1,143 @@
+﻿@model Order
+
+<style>
+    .checkout-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        background-color: #ffffff;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .checkout-header {
+        text-align: center;
+        margin-bottom: 50px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e8e8e8;
+    }
+
+    .checkout-title {
+        font-size: 2.2rem;
+        font-weight: 300;
+        color: #333;
+        margin: 0;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .checkout-form {
+        background-color: #ffffff;
+        border: 1px solid #e8e8e8;
+        padding: 40px;
+        margin-bottom: 40px;
+    }
+
+    .form-group {
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        display: block;
+        color: #333;
+        font-weight: 500;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 0;
+        font-size: 14px;
+        color: #333;
+        background-color: #ffffff;
+        transition: border-color 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #333;
+        box-shadow: none;
+    }
+
+    .form-control::placeholder {
+        color: #999;
+        font-style: italic;
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .submit-section {
+        text-align: center;
+        padding: 30px 0;
+        border-top: 1px solid #e8e8e8;
+        margin-top: 20px;
+    }
+
+    .submit-btn {
+        background-color: #333;
+        border: none;
+        color: white;
+        padding: 15px 40px;
+        font-size: 14px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .submit-btn:hover {
+        background-color: #000;
+        transform: translateY(-2px);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+    }
+
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .form-col {
+        flex: 1;
+    }
+
+    
+</style>
+
+<div class="checkout-container">
+    <div class="checkout-header">
+        <h2 class="checkout-title">Checkout</h2>
+    </div>
+
+    <form asp-action="Checkout" method="post" class="checkout-form">
+        <div class="form-group">
+            <label asp-for="ShippingAddress" class="form-label">Shipping Address</label>
+            <input asp-for="ShippingAddress" class="form-control" placeholder="Enter your shipping address..." />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Notes" class="form-label">Notes</label>
+            <textarea asp-for="Notes" class="form-control" placeholder="Any special instructions or notes..."></textarea>
+        </div>
+
+        <div class="submit-section">
+            <button type="submit" class="submit-btn">Place Order</button>
+        </div>
+    </form>
+</div>
 ﻿@model buoi2.Models.Order
 @{
     // Lấy giỏ hàng từ ViewBag thay vì HttpContext trực tiếp
