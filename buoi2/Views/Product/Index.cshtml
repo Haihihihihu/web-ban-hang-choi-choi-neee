@@ -1,8 +1,10 @@
 ﻿@model IEnumerable<buoi2.Models.Product>
+
 @{
     ViewData["Title"] = "Index";
     string currentSearch = ViewBag.SearchName as string ?? "";
     string currentSort = ViewBag.SortBy as string ?? "";
+    int? currentCategory = ViewBag.CategoryId as int?;
 }
 
 <!-- Font Awesome for icons -->
@@ -300,3 +302,165 @@
         </div>
     }
 </div>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@Html.AntiForgeryToken() <!-- CSRF Token -->
+<!-- Form Tìm kiếm, filter, sort -->
+<form method="get" asp-action="Index" class="row mb-4">
+    <div class="col-md-4">
+        <input type="text" name="searchName" value="@currentSearch" class="form-control" placeholder="Tìm theo tên sản phẩm..." />
+    </div>
+    <div class="col-md-3">
+        <select name="categoryId" class="form-select">
+            <option value="">-- Lọc theo danh mục --</option>
+            @foreach (var cat in (SelectList)ViewBag.Categories)
+            {
+                <option value="@cat.Value" selected="@(cat.Value == currentCategory?.ToString())">@cat.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="sortBy" class="form-select">
+            <option value="">-- Sắp xếp theo giá --</option>
+            <option value="price_asc" selected="@(currentSort == "price_asc")">Giá tăng dần</option>
+            <option value="price_desc" selected="@(currentSort == "price_desc")">Giá giảm dần</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+    </div>
+</form>
+
+<!-- Danh sách sản phẩm -->
+<div class="row">
+    @foreach (var product in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow">
+                <img src="@(product.ImageUrl ?? "/images/default-product.jpg")"
+                     class="card-img-top"
+                     alt="@product.Name"
+                     style="height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;" />
+
+                <div class="card-body d-flex justify-content-between">
+                    <!-- Thông tin sản phẩm bên trái -->
+                    <div class="flex-grow-1">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text text-muted mb-1">@product.Description</p>
+                        <p class="card-text text-primary font-weight-bold mb-0">@product.Price.ToString("N0") đ</p>
+                    </div>
+
+                    <!-- Rating bên phải -->
+                    <div class="text-center ms-3" style="min-width: 60px;">
+                        @if (product.AverageRating > 0)
+                        {
+                            <p class="m-0 text-warning" style="font-size:1.2rem;">
+                                @(product.AverageRating?.ToString("0.0") ?? "0.0") ★
+                            </p>
+
+                            <small class="text-muted">(@product.ReviewCount lượt)</small>
+                        }
+                        else
+                        {
+                            <small class="text-muted">Chưa có<br />đánh giá</small>
+                        }
+                    </div>
+                </div>
+
+                <div class="card-footer bg-transparent border-0 d-flex justify-content-between flex-wrap gap-2">
+                    <a asp-action="Display" asp-route-id="@product.Id"
+                       class="btn btn-sm btn-outline-primary">
+                        Xem
+                    </a>
+
+                    @if (!User.IsInRole("Admin"))
+                    {
+                        <!-- Nút giỏ hàng -->
+                        <button type="button"
+                                class="btn btn-sm btn-outline-warning add-to-cart-btn"
+                                data-product-id="@product.Id"
+                                title="Thêm vào giỏ hàng">
+                            <i class="fas fa-cart-plus me-1"></i> Giỏ hàng
+                        </button>
+
+                        <!-- Nút yêu thích -->
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger add-to-wishlist-btn"
+                                data-product-id="@product.Id"
+                                title="Thêm vào danh sách yêu thích">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    }
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Update" asp-route-id="@product.Id" class="btn btn-sm btn-outline-success">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@product.Id"
+                           class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('Bạn chắc chắn xóa sản phẩm?');">Delete</a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        const token = '@Antiforgery.GetAndStoreTokens(Context).RequestToken';
+
+        // Xử lý nút thêm vào danh sách yêu thích
+        document.querySelectorAll(".add-to-wishlist-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const productId = this.dataset.productId;
+                fetch('@Url.Action("Add", "Wishlist")?productId=' + productId, {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': token }
+                })
+                    .then(res => {
+                        if (res.ok) {
+                            this.classList.toggle('active');
+                            this.querySelector('i').classList.toggle('text-danger');
+                        } else {
+                            alert("Thêm vào danh sách yêu thích thất bại.");
+                        }
+                    })
+                    .catch(() => alert("Có lỗi mạng. Vui lòng thử lại."));
+            });
+        });
+
+        // Xử lý nút thêm vào giỏ hàng
+        document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+            btn.addEventListener("click", async function () {
+                const productId = this.dataset.productId;
+                try {
+                    const response = await fetch('@Url.Action("AddToCart", "ShoppingCart")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'RequestVerificationToken': token
+                        },
+                        body: new URLSearchParams({ productId: productId, quantity: 1 })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.innerHTML = '<i class="fas fa-check"></i> Đã thêm';
+                        this.classList.add('btn-success');
+                        this.disabled = true;
+                    } else {
+                        alert(data.message || "Không thể thêm vào giỏ hàng.");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("Có lỗi mạng. Vui lòng thử lại.");
+                }
+            });
+        });
+    </script>
+    <style>
+        .add-to-wishlist-btn.active i {
+            color: red;
+        }
+    </style>
+}

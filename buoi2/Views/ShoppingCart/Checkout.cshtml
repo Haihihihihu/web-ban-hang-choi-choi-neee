@@ -138,3 +138,99 @@
         </div>
     </form>
 </div>
+﻿@model buoi2.Models.Order
+@{
+    // Lấy giỏ hàng từ ViewBag thay vì HttpContext trực tiếp
+    var cart = ViewBag.Cart as buoi2.Models.ShoppingCart ?? new buoi2.Models.ShoppingCart();
+}
+
+<h2>Thanh toán</h2>
+
+<!-- Hiển thị thông báo lỗi từ form hoặc server -->
+@if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+<!-- Hiển thị danh sách sản phẩm trong giỏ hàng -->
+@if (cart.Items.Any())
+{
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5>Sản phẩm trong giỏ hàng</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Số lượng</th>
+                        <th>Giá</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in cart.Items)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.Price.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                            <td>@item.SubTotal.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="table-info">
+                        <th colspan="3">Tổng tiền:</th>
+                        <th>@cart.GetTotal().ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">Giỏ hàng trống. Vui lòng thêm sản phẩm trước khi thanh toán.</div>
+}
+
+<!-- Form thanh toán -->
+<form asp-action="Checkout" method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-group mb-3">
+        <label asp-for="ShippingAddress">Địa chỉ giao hàng</label>
+        <input asp-for="ShippingAddress" class="form-control" />
+        <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-3">
+        <label asp-for="Notes">Ghi chú</label>
+        <textarea asp-for="Notes" class="form-control"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary" @(cart.Items.Any() ? "" : "disabled")>Đặt hàng</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        let valid = true;
+        document.querySelectorAll('td').forEach(td => {
+            if (td.innerText.trim() === "0") {
+                valid = false;
+            }
+        });
+        if(!valid) {
+            alert("Vui lòng loại bỏ sản phẩm có số lượng 0 trước khi thanh toán.");
+            e.preventDefault();
+        }
+    });
+</script>

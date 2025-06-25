@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using buoi2.Areas.Admin.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace buoi2.Controllers
 {
@@ -11,17 +13,48 @@ namespace buoi2.Controllers
     {
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
-
         public ProductController(IProductRepository productRepository, ICategoryRepository categoryRepository)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
+        public ProductController(IProductRepository productRepository,
+       ICategoryRepository categoryRepository, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
+            _userManager = userManager;
+            _context = context;
         }
-
         // Hiển thị danh sách sản phẩm
         public async Task<IActionResult> Index()
         {
             var products = await _productRepository.GetAllAsync();
+
+        public async Task<IActionResult> Index(string searchName, string sortBy, int? categoryId)
+        {
+            var products = await _productRepository.GetAllAsync(searchName, sortBy, categoryId);
+
+            // Lưu các tham số tìm kiếm và sắp xếp để hiển thị lại trên View
+            ViewBag.SearchName = searchName;
+            ViewBag.SortBy = sortBy;
+            ViewBag.CategoryId = categoryId;
+
+            var categories = await _categoryRepository.GetAllAsync();
+            ViewBag.Categories = new SelectList(categories, "Id", "Name", categoryId);
+
+            var productIds = products.Select(p => p.Id).ToList();
+            var reviews = await _context.ProductReviews
+                                        .Where(r => productIds.Contains(r.ProductId))
+                                        .ToListAsync();
+
+            foreach (var product in products)
+            {
+                var productReviews = reviews.Where(r => r.ProductId == product.Id).ToList();
+                if (productReviews.Any())
+                {
+                    product.AverageRating = productReviews.Average(r => r.Rating);
+                    product.ReviewCount = productReviews.Count;
+                }
+            }
             return View(products);
         }
 
@@ -68,7 +101,8 @@ namespace buoi2.Controllers
             return View(product);
         }
 
-        // Lưu hình ảnh
+        
+        [Authorize(Roles = "Admin")]
         private async Task<string> SaveImage(IFormFile image)
         {
             // Ensure the images directory exists
@@ -94,11 +128,45 @@ namespace buoi2.Controllers
         public async Task<IActionResult> Display(int id)
         {
             var product = await _productRepository.GetByIdAsync(id);
-            if (product == null)
+            if (product == null) return NotFound();
+
+            var reviews = await _productRepository.GetReviewsByProductIdAsync(id); // lấy danh sách review
+            ViewBag.Reviews = reviews;
+            if (reviews.Any())
             {
-                return NotFound();
+                var averageRating = reviews.Average(r => r.Rating);    // trung bình sao
+                var reviewCount = reviews.Count();
+                ViewBag.AverageRating = averageRating;
+                ViewBag.ReviewCount = reviewCount;
             }
+            else
+            {
+                ViewBag.AverageRating = null;
+                ViewBag.ReviewCount = 0;
+            }
+
+
             return View(product);
+        }
+
+
+        //Thêm review cho sản phẩm
+        [HttpPost]
+        [Authorize] // Bắt buộc đăng nhập
+        public async Task<IActionResult> AddReview(int productId, int rating, string comment)
+        {
+            var user = await _userManager.GetUserAsync(User); // lấy user hiện tại
+            var review = new ProductReview
+            {
+                ProductId = productId,
+                Rating = rating,
+                Comment = comment,
+                UserId = user.Id,             // <-- Gán UserId
+                UserName = user.UserName,     // <-- Gán UserName
+                CreatedAt = DateTime.Now
+            };
+            await _productRepository.AddReviewAsync(review);
+            return RedirectToAction(nameof(Display), new { id = productId });
         }
 
         // Hiển thị form cập nhật sản phẩm
@@ -215,5 +283,29 @@ namespace buoi2.Controllers
             await _productRepository.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> DeleteReview(int id)
+        {
+            // lấy review đơn lẻ, không phải danh sách
+            var review = await _productRepository.GetReviewByIdAsync(id);
+            if (review == null)
+            {
+                return NotFound();
+            }
+
+            // chỉ chủ nhân comment này mới được xóa
+            var currentUserName = User.Identity.Name;
+            if (review.UserName != currentUserName)
+            {
+                return Forbid();
+            }
+
+            // xóa review
+            await _productRepository.DeleteReviewAsync(id);
+            return RedirectToAction("Display", new { id = review.ProductId });
+        }
+
+
     }
 }

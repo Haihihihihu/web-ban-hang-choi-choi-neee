@@ -1,0 +1,42 @@
+﻿@model IEnumerable<buoi2.Models.Wishlist>
+
+@{
+    ViewData["Title"] = "Danh sách yêu thích";
+}
+
+<h2>Danh sách sản phẩm yêu thích của bạn</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Danh sách yêu thích trống.
+        <a asp-controller="Product" asp-action="Index">Khám phá sản phẩm</a>
+    </div>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Tên sản phẩm</th>
+                <th>Giá</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Product.Name</td>
+                    <td>@item.Product.Price.ToString("N0") đ</td>
+                    <td>
+                        <a asp-action="MoveToCart" asp-route-id="@item.WishlistId" class="btn btn-success btn-sm">
+                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                        </a>
+                        <a asp-action="Remove" asp-route-id="@item.WishlistId" class="btn btn-danger btn-sm">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

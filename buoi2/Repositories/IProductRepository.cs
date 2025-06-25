@@ -6,10 +6,17 @@ namespace buoi2.Repositories
 {
     public interface IProductRepository
     {
-        Task<IEnumerable<Product>> GetAllAsync(string searchName = null, string sortBy = null);
+        Task<IEnumerable<Product>> GetAllAsync(string searchName = null, string sortBy = null, int? categoryId = null);
         Task<Product> GetByIdAsync(int id);
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task DeleteAsync(int id);
+        Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(int productId);
+        Task AddReviewAsync(ProductReview review);
+
+        Task<ProductReview> GetReviewByIdAsync(int id);
+
+        Task DeleteReviewAsync(int id);
     }
+    
 }

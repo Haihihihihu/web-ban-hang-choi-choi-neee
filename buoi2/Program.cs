@@ -71,6 +71,8 @@ app.UseStaticFiles();
 
 app.UseSession();
 app.UseRouting();
+builder.Services.AddSession();
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -83,6 +85,9 @@ app.UseEndpoints(endpoints =>
         name: "AdminArea",
         areaName: "Admin",
         pattern: "Admin/{controller=ProductManager}/{action=Index}/{id?}");
+    endpoints.MapControllerRoute(
+        name: "areas",
+        pattern: "{area:exists}/{controller=ProductManager}/{action=Index}/{id?}");
 
     // 2. Map Default Route (Non-Area)
     endpoints.MapControllerRoute(
