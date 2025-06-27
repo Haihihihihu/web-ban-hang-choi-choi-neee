@@ -136,10 +136,22 @@ namespace buoi2.Controllers
             HttpContext.Session.SetObjectAsJson("Cart", cart);
             return View(cart);
         }
+<<<<<<< Updated upstream
 
         public async Task<IActionResult> AddToCart(int productId, int quantity)
         {
             var product = await GetProductFromDatabase(productId);
+=======
+        public IActionResult OrderHistory()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var orders = _context.Orders
+                .AsNoTracking() // để luôn lấy bản mới nhất
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+>>>>>>> Stashed changes
 
             var cartItem = new CartItem
             {
@@ -157,6 +169,7 @@ namespace buoi2.Controllers
             return RedirectToAction("Index");
         }
 
+<<<<<<< Updated upstream
         public IActionResult RemoveFromCart(int productId)
         {
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
@@ -169,6 +182,11 @@ namespace buoi2.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+=======
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+>>>>>>> Stashed changes
         public async Task<IActionResult> UpdateQuantity([FromBody] UpdateQuantityRequest request)
         {
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();

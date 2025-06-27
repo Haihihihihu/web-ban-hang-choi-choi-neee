@@ -1,0 +1,40 @@
+﻿@model IEnumerable<buoi2.Models.Product>
+@{
+    ViewData["Title"] = "Manage Products";
+}
+<h1>Inventory - Products</h1>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">@TempData["Message"]</div>
+}
+
+<table class="table table-bordered table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity In Stock</th>
+            <th>Order Quantity</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Name</td>
+                <td>@p.Price.ToString("c")</td>
+                <td>@p.Quantity</td>
+                <td>
+                    <form asp-action="PlaceOrder" method="post" class="d-flex">
+                        <input type="hidden" name="productId" value="@p.Id" />
+                        <input type="number" name="quantity" class="form-control me-2" min="1" max="@p.Quantity" value="1" style="width:100px;" />
+                        <button class="btn btn-success btn-sm" type="submit">Order</button>
+                    </form>
+                </td>
+                <td></td>
+            </tr>
+        }
+    </tbody>
+</table>

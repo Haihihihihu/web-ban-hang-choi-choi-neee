@@ -41,51 +41,46 @@ namespace buoi2.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            try
+            _logger.LogInformation("DeleteUser called with id={Id}", id);
+
+            if (string.IsNullOrEmpty(id))
             {
-                if (string.IsNullOrEmpty(id))
-                {
-                    TempData["Error"] = "Invalid user ID.";
-                    return RedirectToAction("Index");
-                }
-
-                var user = await _userManager.FindByIdAsync(id);
-                if (user == null)
-                {
-                    TempData["Error"] = "User not found.";
-                    return RedirectToAction("Index");
-                }
-
-                // Kiểm tra không được xóa chính mình
-                var currentUser = await _userManager.GetUserAsync(User);
-                if (currentUser != null && currentUser.Id == user.Id)
-                {
-                    TempData["Error"] = "You cannot delete your own account.";
-                    return RedirectToAction("Index");
-                }
-
-                // Thực hiện xóa
-                var result = await _userManager.DeleteAsync(user);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation($"User {user.Email} deleted successfully by {currentUser?.Email}");
-                    TempData["Success"] = $"User {user.Email} deleted successfully!";
-                }
-                else
-                {
-                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    _logger.LogError($"Error deleting user {user.Email}: {errors}");
-                    TempData["Error"] = $"Error deleting user: {errors}";
-                }
+                TempData["Error"] = "Invalid user ID.";
+                return RedirectToAction("Index");
             }
-            catch (Exception ex)
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
             {
-                _logger.LogError(ex, $"Exception when deleting user with ID: {id}");
-                TempData["Error"] = "An unexpected error occurred while deleting the user.";
+                _logger.LogWarning("User {Id} not found.", id);
+                TempData["Error"] = "User not found.";
+                return RedirectToAction("Index");
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser != null && currentUser.Id == user.Id)
+            {
+                _logger.LogWarning("User {Id} cannot delete themselves.", id);
+                TempData["Error"] = "You cannot delete your own account.";
+                return RedirectToAction("Index");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("User {Email} deleted successfully.", user.Email);
+                TempData["Success"] = $"User {user.Email} deleted successfully!";
+            }
+            else
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                _logger.LogError("Error deleting user {Email}: {Errors}", user.Email, errors);
+                TempData["Error"] = $"Error deleting user: {errors}";
             }
 
             return RedirectToAction("Index");
         }
+
 
         // Action để lấy thông tin user (cho debugging)
         [HttpGet]

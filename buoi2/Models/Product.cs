@@ -19,6 +19,16 @@ namespace buoi2.Models
 
         public int Stock { get; set; }
 
+<<<<<<< Updated upstream
+=======
+        [NotMapped]
+        public double? AverageRating { get; set; }
+
+        [NotMapped]
+        public int ReviewCount { get; set; }
+
+        public int Quantity { get; set; }
+>>>>>>> Stashed changes
 
     }
 }

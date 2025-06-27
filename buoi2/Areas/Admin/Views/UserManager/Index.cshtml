@@ -31,13 +31,18 @@
                 <td>@user.Email</td>
                 <td>@user.FullName</td>
                 <td>
-                    <form asp-action="DeleteUser" method="post" asp-route-id="@user.Id" onsubmit="return confirm('Are you sure you want to delete @user.FullName?');">
+                    <form asp-area="Admin"
+                          asp-controller="UserManager"
+                          asp-action="DeleteUser"
+                          asp-route-id="@user.Id"
+                          method="post"
+                          onsubmit="return confirm('Delete?');">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        <button class="btn btn-danger btn-sm">Delete</button>
                     </form>
+
                 </td>
             </tr>
         }
     </tbody>
 </table>
-    
