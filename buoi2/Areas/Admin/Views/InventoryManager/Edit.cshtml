@@ -1,0 +1,90 @@
+﻿@model buoi2.Models.Product
+@{
+    ViewData["Title"] = "Cập nhật tồn kho";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Edit", "InventoryManager", new { area = "Admin" }, FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <!-- Hidden fields để giữ tất cả dữ liệu -->
+                        @Html.HiddenFor(m => m.Id)
+                        @Html.HiddenFor(m => m.Name)
+                        @Html.HiddenFor(m => m.Price)
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Mã sản phẩm:</strong></label>
+                            <p class="form-control-plaintext">@Model.Id</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Tên sản phẩm:</strong></label>
+                            <p class="form-control-plaintext">@Model.Name</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Giá bán:</strong></label>
+                            <p class="form-control-plaintext">@Model.Price.ToString("N0") ₫</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Số lượng tồn kho</label>
+                            <div class="input-group">
+                                @Html.TextBoxFor(m => m.Stock, new { @class = "form-control", type = "number", min = "0" })
+                                <span class="input-group-text">sản phẩm</span>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.Stock, "", new { @class = "text-danger" })
+                            <div class="form-text">Nhập số lượng sản phẩm hiện có trong kho (Hiện tại: @Model.Stock)</div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            @Html.ActionLink("Quay lại", "Index", "InventoryManager", new { area = "Admin" }, new { @class = "btn btn-secondary me-md-2" })
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            // Focus vào input Stock khi trang load
+            $('#Stock').focus().select();
+
+            // Debug form data before submit
+            $('form').on('submit', function (e) {
+                console.log('Form data:');
+                console.log('Id:', $('#Id').val());
+                console.log('Name:', $('#Name').val());
+                console.log('Price:', $('#Price').val());
+                console.log('Stock:', $('#Stock').val());
+
+                var formData = $(this).serialize();
+                console.log('Serialized form data:', formData);
+
+                // Kiểm tra xem tất cả required fields có giá trị không
+                if (!$('#Id').val() || !$('#Stock').val()) {
+                    alert('Thiếu dữ liệu bắt buộc!');
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
+}

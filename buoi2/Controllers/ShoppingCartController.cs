@@ -136,22 +136,9 @@ namespace buoi2.Controllers
             HttpContext.Session.SetObjectAsJson("Cart", cart);
             return View(cart);
         }
-<<<<<<< Updated upstream
-
         public async Task<IActionResult> AddToCart(int productId, int quantity)
         {
             var product = await GetProductFromDatabase(productId);
-=======
-        public IActionResult OrderHistory()
-        {
-            var userId = _userManager.GetUserId(User);
-
-            var orders = _context.Orders
-                .AsNoTracking() // để luôn lấy bản mới nhất
-                .Where(o => o.UserId == userId)
-                .OrderByDescending(o => o.OrderDate)
-                .ToList();
->>>>>>> Stashed changes
 
             var cartItem = new CartItem
             {
@@ -169,7 +156,22 @@ namespace buoi2.Controllers
             return RedirectToAction("Index");
         }
 
-<<<<<<< Updated upstream
+        // ✅ Method này phải tách riêng, không được lồng bên trên
+        public IActionResult OrderHistory()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var orders = _context.Orders
+                .AsNoTracking()
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+
+            return View(orders);
+        }
+
+
+
         public IActionResult RemoveFromCart(int productId)
         {
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
@@ -182,59 +184,55 @@ namespace buoi2.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-=======
-
-
-        [HttpPost, ValidateAntiForgeryToken]
->>>>>>> Stashed changes
         public async Task<IActionResult> UpdateQuantity([FromBody] UpdateQuantityRequest request)
-        {
-            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
-            var product = await _productRepository.GetByIdAsync(request.ProductId);
-            var cartItem = cart.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
-
-            if (product != null && cartItem != null)
             {
-                cartItem.Stock = product.Stock;
-                var qty = request.Quantity;
+                var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
+                var product = await _productRepository.GetByIdAsync(request.ProductId);
+                var cartItem = cart.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
 
-                // ✅ Validation nghiêm ngặt - không cho phép vượt quá tồn kho
-                if (qty <= 0)
+                if (product != null && cartItem != null)
                 {
+                    cartItem.Stock = product.Stock;
+                    var qty = request.Quantity;
+
+                    // ✅ Validation nghiêm ngặt - không cho phép vượt quá tồn kho
+                    if (qty <= 0)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Số lượng phải lớn hơn 0"
+                        });
+                    }
+
+                    if (qty > product.Stock)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = $"Số lượng không được vượt quá tồn kho ({product.Stock})"
+                        });
+                    }
+
+                    cart.UpdateQuantity(request.ProductId, qty);
+                    HttpContext.Session.SetObjectAsJson("Cart", cart);
+
                     return Json(new
                     {
-                        success = false,
-                        message = "Số lượng phải lớn hơn 0"
+                        success = true,
+                        subtotal = cartItem.SubTotal,
+                        total = cart.GetTotal(),
+                        actualQuantity = qty
                     });
                 }
-
-                if (qty > product.Stock)
-                {
-                    return Json(new
-                    {
-                        success = false,
-                        message = $"Số lượng không được vượt quá tồn kho ({product.Stock})"
-                    });
-                }
-
-                cart.UpdateQuantity(request.ProductId, qty);
-                HttpContext.Session.SetObjectAsJson("Cart", cart);
 
                 return Json(new
                 {
-                    success = true,
-                    subtotal = cartItem.SubTotal,
-                    total = cart.GetTotal(),
-                    actualQuantity = qty
+                    success = false,
+                    message = "Sản phẩm không tồn tại"
                 });
-            }
-
-            return Json(new
-            {
-                success = false,
-                message = "Sản phẩm không tồn tại"
-            });
         }
+          
 
         public class UpdateQuantityRequest
         {
@@ -288,17 +286,6 @@ namespace buoi2.Controllers
 
             return RedirectToAction("OrderHistory");
         }
-        public async Task<IActionResult> OrderHistory()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            var orders = await _context.Orders
-                .Where(o => o.UserId == user.Id)
-                .Include(o => o.OrderDetails)
-                .ThenInclude(od => od.Product)
-                .OrderByDescending(o => o.OrderDate)
-                .ToListAsync();
-
-            return View(orders);
-        }
+      
     }
 }

@@ -1,0 +1,86 @@
+﻿@model IEnumerable<buoi2.Models.Product>
+@{
+    ViewData["Title"] = "Quản lý kho";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">@ViewData["Title"]</h2>
+
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Message"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">Mã SP</th>
+                                    <th scope="col">Tên sản phẩm</th>
+                                    <th scope="col">Giá bán</th>
+                                    <th scope="col">Tồn kho</th>
+                                    <th scope="col" class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Any())
+                                {
+                                    @foreach (var product in Model)
+                                    {
+                                        <tr>
+                                            <td>@product.Id</td>
+                                            <td>@product.Name</td>
+                                            <td>@product.Price.ToString("N0") ₫</td>
+                                            <td>
+                                                <span class="badge @(product.Stock <= 10 ? "bg-danger" : product.Stock <= 50 ? "bg-warning" : "bg-success")">
+                                                    @product.Stock
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="@Url.Action("Edit", "InventoryManager", new { area = "Admin", id = product.Id })"
+                                                   class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-edit"></i> Cập nhật kho
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">
+                                            Không có sản phẩm nào để hiển thị
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.onpageshow = function (event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        };
+        setTimeout(function () {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+}

@@ -3,7 +3,7 @@ using buoi2.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using buoi2.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +23,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IProductRepository, EFProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, EFCategoryRepository>();
-builder.Services.AddScoped<InventoryService>();
+
 
 // Email
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
@@ -71,13 +71,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=ProductManager}/{action=Index}/{id?}"
-);
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=UserManager}/{action=Index}/{id?}"
-);
-
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
