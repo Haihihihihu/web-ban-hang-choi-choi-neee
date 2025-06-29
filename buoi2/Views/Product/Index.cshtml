@@ -462,6 +462,12 @@
                         this.classList.add('added');
                         this.disabled = true;
                         this.title = "Đã thêm vào giỏ hàng";
+                        // Cập nhật badge cart
+                        fetch('/ShoppingCart/GetCartCount')
+                          .then(res => res.json())
+                          .then(data => {
+                              document.getElementById('cart-count').innerText = data.count;
+                          });
                     } else {
                         alert(data.message || "Không thể thêm vào giỏ hàng.");
                     }

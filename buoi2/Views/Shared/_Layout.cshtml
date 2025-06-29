@@ -68,7 +68,7 @@
                                 <a class="nav-link" asp-area="Admin" asp-controller="ProductManager" asp-action="add">QL Trạng Thái Đơn Hàng</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="Admin" asp-controller="ProductManager" asp-action="add">Thống Kê</a>
+                                <a class="nav-link" asp-area="Admin" asp-controller="AnalyticAdmin" asp-action="index">Thống Kê</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="Admin" asp-controller="ProductManager" asp-action="add">FeedBack</a>
@@ -140,6 +140,19 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Chỉ cập nhật cart badge nếu không phải admin
+            if (!document.body.innerHTML.includes('Trang Admin')) {
+                fetch('/ShoppingCart/GetCartCount')
+                    .then(res => res.json())
+                    .then(data => {
+                        var badge = document.getElementById('cart-count');
+                        if (badge) badge.innerText = data.count;
+                    });
+            }
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

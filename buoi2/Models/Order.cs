@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 namespace buoi2.Models
 {
     public class Order
@@ -26,5 +27,7 @@ namespace buoi2.Models
         [ValidateNever]
         public ApplicationUser ApplicationUser { get; set; }
         public List<OrderDetail> OrderDetails { get; set; }
+        [AllowNull]
+        public string? PaymentMethod { get; set; }
     }
 }

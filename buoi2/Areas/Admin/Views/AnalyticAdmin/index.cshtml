@@ -1,0 +1,735 @@
+﻿@{
+    ViewData["Title"] = "Thống Kê Doanh Thu";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/analytics.css" />
+
+<div class="analytics-dashboard">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Dashboard Thống Kê
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Dashboard tổng quan -->
+                        <div class="row mb-4 fade-in" id="dashboardStats">
+                            <div class="col-md-3">
+                                <div class="stat-card success">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 id="todayRevenue">0 VND</h4>
+                                            <p class="mb-0">Doanh Thu Hôm Nay</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-calendar-day"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card info">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 id="monthRevenue">0 VND</h4>
+                                            <p class="mb-0">Doanh Thu Tháng Này</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card warning">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 id="totalProducts">0</h4>
+                                            <p class="mb-0">Tổng Sản Phẩm</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card danger">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 id="totalCustomers">0</h4>
+                                            <p class="mb-0">Tổng Khách Hàng</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bộ lọc ngày -->
+                        <div class="row mb-4 slide-in">
+                            <div class="col-12">
+                                <div class="filter-controls">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="startDate" class="form-label">Ngày bắt đầu:</label>
+                                            <input type="date" id="startDate" class="form-control" />
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="endDate" class="form-label">Ngày kết thúc:</label>
+                                            <input type="date" id="endDate" class="form-control" />
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-end">
+                                            <button type="button" id="filterBtn" class="btn btn-primary me-2">
+                                                <i class="fas fa-search"></i> Lọc
+                                            </button>
+                                            <button type="button" id="resetBtn" class="btn btn-secondary">
+                                                <i class="fas fa-refresh"></i> Đặt lại
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thống kê tổng quan -->
+                        <div class="row mb-4 fade-in">
+                            <div class="col-md-4">
+                                <div class="stat-card success">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 id="totalRevenue">0 VND</h4>
+                                            <p class="mb-0">Tổng Doanh Thu</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-money-bill-wave"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card info">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 id="totalOrders">0</h4>
+                                            <p class="mb-0">Tổng Số Đơn Hàng</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card warning">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 id="avgOrderValue">0 VND</h4>
+                                            <p class="mb-0">Giá Trị TB/Đơn Hàng</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-calculator"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabs thống kê -->
+                        <ul class="nav nav-tabs" id="analyticsTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="revenue-tab" data-bs-toggle="tab" data-bs-target="#revenue" type="button" role="tab">
+                                    <i class="fas fa-chart-line me-2"></i>Doanh Thu
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="products-tab" data-bs-toggle="tab" data-bs-target="#products" type="button" role="tab">
+                                    <i class="fas fa-box me-2"></i>Sản Phẩm Bán Chạy
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab">
+                                    <i class="fas fa-tags me-2"></i>Thống Kê Danh Mục
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="customers-tab" data-bs-toggle="tab" data-bs-target="#customers" type="button" role="tab">
+                                    <i class="fas fa-users me-2"></i>Khách Hàng
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments" type="button" role="tab">
+                                    <i class="fas fa-credit-card me-2"></i>Thanh Toán
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="analyticsTabContent">
+                            <!-- Tab Doanh Thu -->
+                            <div class="tab-pane fade show active" id="revenue" role="tabpanel">
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <div class="chart-container">
+                                            <h5 class="card-title mb-3">Biểu Đồ Doanh Thu Theo Ngày</h5>
+                                            <canvas id="revenueChart" width="400" height="100"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab Sản Phẩm Bán Chạy -->
+                            <div class="tab-pane fade" id="products" role="tabpanel">
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <div class="chart-container">
+                                            <h5 class="card-title mb-3">Top Sản Phẩm Bán Chạy</h5>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped" id="topProductsTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>STT</th>
+                                                            <th>Tên Sản Phẩm</th>
+                                                            <th>Giá</th>
+                                                            <th>Số Lượng Bán</th>
+                                                            <th>Doanh Thu</th>
+                                                            <th>Số Đơn Hàng</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab Thống Kê Danh Mục -->
+                            <div class="tab-pane fade" id="categories" role="tabpanel">
+                                <div class="row mt-3">
+                                    <div class="col-md-8">
+                                        <div class="chart-container">
+                                            <h5 class="card-title mb-3">Biểu Đồ Doanh Thu Theo Danh Mục</h5>
+                                            <canvas id="categoryChart" width="400" height="100"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="chart-container">
+                                            <h5 class="card-title mb-3">Chi Tiết Danh Mục</h5>
+                                            <div id="categoryDetails">
+                                                <p class="text-muted">Chọn danh mục để xem chi tiết</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab Khách Hàng -->
+                            <div class="tab-pane fade" id="customers" role="tabpanel">
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <div class="chart-container">
+                                            <h5 class="card-title mb-3">Top Khách Hàng</h5>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped" id="topCustomersTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>STT</th>
+                                                            <th>Tên Khách Hàng</th>
+                                                            <th>Email</th>
+                                                            <th>Số Đơn Hàng</th>
+                                                            <th>Tổng Chi Tiêu</th>
+                                                            <th>Giá Trị TB/Đơn</th>
+                                                            <th>Đơn Hàng Cuối</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab Thanh Toán -->
+                            <div class="tab-pane fade" id="payments" role="tabpanel">
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <div class="chart-container">
+                                            <h5 class="card-title mb-3">Biểu Đồ Phương Thức Thanh Toán</h5>
+                                            <canvas id="paymentChart" width="400" height="100"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="chart-container">
+                                            <h5 class="card-title mb-3">Chi Tiết Thanh Toán</h5>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped" id="paymentTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Phương Thức</th>
+                                                            <th>Số Đơn Hàng</th>
+                                                            <th>Tổng Tiền</th>
+                                                            <th>Tỷ Lệ</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td colspan="4" class="text-center">Đang tải dữ liệu...</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Loading -->
+                        <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Đang tải...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+<script>
+    let revenueChart, categoryChart, paymentChart;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Khởi tạo ngày mặc định (30 ngày gần nhất)
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+
+        document.getElementById('endDate').value = formatDateForInput(today);
+        document.getElementById('startDate').value = formatDateForInput(thirtyDaysAgo);
+
+        // Load dữ liệu ban đầu
+        loadDashboardStats();
+        loadAnalyticData();
+
+        // Event listeners
+        document.getElementById('filterBtn').addEventListener('click', loadAnalyticData);
+        document.getElementById('resetBtn').addEventListener('click', resetDates);
+
+        // Tab change events
+        document.getElementById('products-tab').addEventListener('click', loadTopProducts);
+        document.getElementById('categories-tab').addEventListener('click', loadCategoryStats);
+        document.getElementById('customers-tab').addEventListener('click', loadCustomerStats);
+        document.getElementById('payments-tab').addEventListener('click', loadPaymentStats);
+    });
+
+    function formatDateForInput(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function resetDates() {
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+
+        document.getElementById('endDate').value = formatDateForInput(today);
+        document.getElementById('startDate').value = formatDateForInput(thirtyDaysAgo);
+
+        loadAnalyticData();
+    }
+
+    async function loadDashboardStats() {
+        try {
+            const response = await fetch('/Admin/AnalyticAdmin/GetDashboardStats');
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('todayRevenue').textContent = formatCurrency(data.data.today.revenue);
+                document.getElementById('monthRevenue').textContent = formatCurrency(data.data.thisMonth.revenue);
+                document.getElementById('totalProducts').textContent = data.data.totals.products.toLocaleString('vi-VN');
+                document.getElementById('totalCustomers').textContent = data.data.totals.customers.toLocaleString('vi-VN');
+            }
+        } catch (error) {
+            console.error('Lỗi khi tải dashboard stats:', error);
+        }
+    }
+
+    async function loadAnalyticData() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        if (!startDate || !endDate) {
+            alert('Vui lòng chọn đầy đủ ngày bắt đầu và kết thúc!');
+            return;
+        }
+
+        if (new Date(startDate) > new Date(endDate)) {
+            alert('Ngày bắt đầu không thể lớn hơn ngày kết thúc!');
+            return;
+        }
+
+        showLoading(true);
+
+        try {
+            // Load dữ liệu biểu đồ và thống kê song song
+            const [chartResponse, statsResponse] = await Promise.all([
+                fetch(`/Admin/AnalyticAdmin/GetRevenueData?startDate=${startDate}&endDate=${endDate}`),
+                fetch(`/Admin/AnalyticAdmin/GetSummaryStats?startDate=${startDate}&endDate=${endDate}`)
+            ]);
+
+            const chartData = await chartResponse.json();
+            const statsData = await statsResponse.json();
+
+            if (chartData.success && statsData.success) {
+                updateChart(chartData.data);
+                updateSummaryStats(statsData);
+            } else {
+                console.error('Lỗi khi tải dữ liệu:', chartData.message || statsData.message);
+                alert('Có lỗi xảy ra khi tải dữ liệu!');
+            }
+        } catch (error) {
+            console.error('Lỗi:', error);
+            alert('Có lỗi xảy ra khi tải dữ liệu!');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    async function loadTopProducts() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        try {
+            const response = await fetch(`/Admin/AnalyticAdmin/GetTopSellingProducts?startDate=${startDate}&endDate=${endDate}&top=10`);
+            const data = await response.json();
+
+            if (data.success) {
+                updateTopProductsTable(data.data);
+            }
+        } catch (error) {
+            console.error('Lỗi khi tải top products:', error);
+        }
+    }
+
+    async function loadCategoryStats() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        try {
+            const response = await fetch(`/Admin/AnalyticAdmin/GetCategoryStats?startDate=${startDate}&endDate=${endDate}`);
+            const data = await response.json();
+
+            if (data.success) {
+                updateCategoryChart(data.data);
+            }
+        } catch (error) {
+            console.error('Lỗi khi tải category stats:', error);
+        }
+    }
+
+    async function loadCustomerStats() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        try {
+            const response = await fetch(`/Admin/AnalyticAdmin/GetCustomerStats?startDate=${startDate}&endDate=${endDate}&top=10`);
+            const data = await response.json();
+
+            if (data.success) {
+                updateCustomerTable(data.data);
+            }
+        } catch (error) {
+            console.error('Lỗi khi tải customer stats:', error);
+        }
+    }
+
+    async function loadPaymentStats() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        try {
+            const response = await fetch(`/Admin/AnalyticAdmin/GetPaymentStats?startDate=${startDate}&endDate=${endDate}`);
+            const data = await response.json();
+
+            if (data.success) {
+                updatePaymentChart(data.data);
+                updatePaymentTable(data.data);
+            }
+        } catch (error) {
+            console.error('Lỗi khi tải payment stats:', error);
+        }
+    }
+
+    function updateChart(data) {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+
+        // Hủy biểu đồ cũ nếu có
+        if (revenueChart) {
+            revenueChart.destroy();
+        }
+
+        revenueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.dateDisplay),
+                datasets: [{
+                    label: 'Doanh Thu (VND)',
+                    data: data.map(item => item.revenue),
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Số Đơn Hàng',
+                    data: data.map(item => item.orderCount),
+                    backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Ngày'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Doanh Thu (VND)'
+                        },
+                        ticks: {
+                            callback: function (value, index, values) {
+                                return formatCurrency(value);
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Số Đơn Hàng'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                if (context.datasetIndex === 0) {
+                                    return 'Doanh Thu: ' + formatCurrency(context.parsed.y);
+                                } else {
+                                    return 'Số Đơn Hàng: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateCategoryChart(data) {
+        const ctx = document.getElementById('categoryChart').getContext('2d');
+
+        if (categoryChart) {
+            categoryChart.destroy();
+        }
+
+        const colors = [
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 205, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+            'rgba(153, 102, 255, 0.8)',
+            'rgba(255, 159, 64, 0.8)'
+        ];
+
+        categoryChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.map(item => item.categoryName),
+                datasets: [{
+                    data: data.map(item => item.totalRevenue),
+                    backgroundColor: colors.slice(0, data.length),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': ' + formatCurrency(value) + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updatePaymentChart(data) {
+        const ctx = document.getElementById('paymentChart').getContext('2d');
+
+        if (paymentChart) {
+            paymentChart.destroy();
+        }
+
+        const colors = [
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 205, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)'
+        ];
+
+        paymentChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: data.map(item => item.paymentMethod),
+                datasets: [{
+                    data: data.map(item => item.orderCount),
+                    backgroundColor: colors.slice(0, data.length),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': ' + value + ' đơn hàng (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateTopProductsTable(data) {
+        const tbody = document.querySelector('#topProductsTable tbody');
+        tbody.innerHTML = '';
+
+        data.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${item.productName}</td>
+                <td>${formatCurrency(item.productPrice)}</td>
+                <td>${item.totalQuantity.toLocaleString('vi-VN')}</td>
+                <td>${formatCurrency(item.totalRevenue)}</td>
+                <td>${item.orderCount}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function updateCustomerTable(data) {
+        const tbody = document.querySelector('#topCustomersTable tbody');
+        tbody.innerHTML = '';
+
+        data.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${item.userName}</td>
+                <td>${item.email}</td>
+                <td>${item.totalOrders}</td>
+                <td>${formatCurrency(item.totalSpent)}</td>
+                <td>${formatCurrency(item.averageOrderValue)}</td>
+                <td>${new Date(item.lastOrderDate).toLocaleDateString('vi-VN')}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function updatePaymentTable(data) {
+        const tbody = document.querySelector('#paymentTable tbody');
+        tbody.innerHTML = '';
+
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.paymentMethod}</td>
+                <td>${item.orderCount}</td>
+                <td>${formatCurrency(item.totalAmount)}</td>
+                <td>${item.percentage}%</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function updateSummaryStats(stats) {
+        document.getElementById('totalRevenue').textContent = formatCurrency(stats.totalRevenue);
+        document.getElementById('totalOrders').textContent = stats.totalOrders.toLocaleString('vi-VN');
+        document.getElementById('avgOrderValue').textContent = formatCurrency(stats.averageOrderValue);
+    }
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(amount);
+    }
+
+    function showLoading(show) {
+        const spinner = document.getElementById('loadingSpinner');
+        const chartCard = document.querySelector('#revenueChart').closest('.chart-container');
+
+        if (show) {
+            spinner.style.display = 'flex';
+            chartCard.style.opacity = '0.5';
+        } else {
+            spinner.style.display = 'none';
+            chartCard.style.opacity = '1';
+        }
+    }
+</script>

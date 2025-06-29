@@ -128,6 +128,7 @@ namespace buoi2.Controllers
             order.OrderDate = DateTime.UtcNow;
             order.TotalPrice = validItems.Sum(i => i.Quantity * i.Price);
             order.Status = OrderStatus.Pending;
+            order.PaymentMethod = order.PaymentMethod ?? "Thanh toán khi nhận hàng";
             order.OrderDetails = validItems.Select(ci => new OrderDetail
             {
                 ProductId = ci.ProductId,
@@ -244,6 +245,18 @@ namespace buoi2.Controllers
                 .SumAsync(ci => ci.Quantity * ci.Price);
 
             return Json(new { success = true, subtotal, total, actualQuantity = qty });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCartCount()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            int count = 0;
+            if (user != null)
+            {
+                count = await _context.CartItems.Where(ci => ci.UserId == user.Id).SumAsync(ci => ci.Quantity);
+            }
+            return Json(new { count });
         }
 
         public class UpdateQuantityRequest
