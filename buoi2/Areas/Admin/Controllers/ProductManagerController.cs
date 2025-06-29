@@ -14,11 +14,13 @@ namespace buoi2.Areas.Admin.Controllers
     {
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly ApplicationDbContext _context;
 
-        public ProductManagerController(IProductRepository productRepository, ICategoryRepository categoryRepository)
+        public ProductManagerController(IProductRepository productRepository, ICategoryRepository categoryRepository, ApplicationDbContext context)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
+            _context = context;
         }
 
         // Hiển thị danh sách sản phẩm trong khu vực Admin
@@ -36,48 +38,53 @@ namespace buoi2.Areas.Admin.Controllers
             return View();
         }
 
-        // Xử lý thêm sản phẩm mới
+        // Xử lý thêm sản phẩm mới với nhiều ảnh
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(Product product, IFormFile imageUrl)
+        public async Task<IActionResult> Add(Product product, IFormFile imageUrl, List<IFormFile> Images)
         {
             if (ModelState.IsValid)
             {
+                // Lưu ảnh đại diện
                 if (imageUrl != null && imageUrl.Length > 0)
                 {
                     product.ImageUrl = await SaveImage(imageUrl);
                 }
                 await _productRepository.AddAsync(product);
+
+                // Lưu các ảnh chi tiết
+                if (Images != null && Images.Count > 0)
+                {
+                    var imagesDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+                    if (!Directory.Exists(imagesDir))
+                        Directory.CreateDirectory(imagesDir);
+                    foreach (var file in Images)
+                    {
+                        if (file.Length > 0)
+                        {
+                            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                            var filePath = Path.Combine(imagesDir, fileName);
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(stream);
+                            }
+                            var productImage = new ProductImage
+                            {
+                                ProductId = product.Id,
+                                Url = "/images/" + fileName
+                            };
+                            _context.ProductImages.Add(productImage);
+                        }
+                    }
+                    await _context.SaveChangesAsync();
+                }
                 return RedirectToAction(nameof(Index));
             }
-
-            // Nếu ModelState không hợp lệ, hiển thị form với dữ liệu đã nhập
-            var categories = await _categoryRepository.GetAllAsync();
-            ViewBag.Categories = new SelectList(categories, "Id", "Name");
+            // ... load lại ViewBag.Categories nếu cần
             return View(product);
         }
 
-        // Lưu hình ảnh
-        private async Task<string> SaveImage(IFormFile image)
-        {
-            var imagesDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-            if (!Directory.Exists(imagesDir))
-            {
-                Directory.CreateDirectory(imagesDir);
-            }
-
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
-            var savePath = Path.Combine(imagesDir, fileName);
-
-            using (var fileStream = new FileStream(savePath, FileMode.Create))
-            {
-                await image.CopyToAsync(fileStream);
-            }
-
-            return "/images/" + fileName;
-        }
-
-        // Hiển thị thông tin chi tiết sản phẩm
+        // Hiển thị thông tin chi tiết sản phẩm (bao gồm nhiều ảnh)
         public async Task<IActionResult> Display(int id)
         {
             var product = await _productRepository.GetByIdAsync(id);
@@ -85,6 +92,7 @@ namespace buoi2.Areas.Admin.Controllers
             {
                 return NotFound();
             }
+            product.Images = _context.ProductImages.Where(pi => pi.ProductId == id).ToList();
             return View(product);
         }
 
@@ -174,7 +182,7 @@ namespace buoi2.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            // Delete associated image if it exists
+            // Xóa ảnh đại diện nếu có
             if (!string.IsNullOrEmpty(product.ImageUrl))
             {
                 var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", product.ImageUrl.TrimStart('/'));
@@ -184,9 +192,39 @@ namespace buoi2.Areas.Admin.Controllers
                 }
             }
 
+            // Xóa các ảnh từ Images collection
+            var productImages = _context.ProductImages.Where(pi => pi.ProductId == id).ToList();
+            foreach (var image in productImages)
+            {
+                if (!string.IsNullOrEmpty(image.Url))
+                {
+                    var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", image.Url.TrimStart('/'));
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath);
+                    }
+                }
+            }
+
             await _productRepository.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
+
+        // Lưu hình ảnh đại diện
+        private async Task<string> SaveImage(IFormFile image)
+        {
+            var imagesDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+            if (!Directory.Exists(imagesDir))
+            {
+                Directory.CreateDirectory(imagesDir);
+            }
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+            var savePath = Path.Combine(imagesDir, fileName);
+            using (var fileStream = new FileStream(savePath, FileMode.Create))
+            {
+                await image.CopyToAsync(fileStream);
+            }
+            return "/images/" + fileName;
+        }
     }
 }
-

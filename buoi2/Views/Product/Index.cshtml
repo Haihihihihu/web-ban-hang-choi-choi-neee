@@ -1,13 +1,12 @@
 ﻿@model IEnumerable<buoi2.Models.Product>
-
 @{
     ViewData["Title"] = "Index";
     string currentSearch = ViewBag.SearchName as string ?? "";
     string currentSort = ViewBag.SortBy as string ?? "";
     int? currentCategory = ViewBag.CategoryId as int?;
+    int numOfQuantity = 1;
 }
 
-<!-- Font Awesome for icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
@@ -15,21 +14,21 @@
         background-color: #ffffff;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    
+
     .shop-container {
         max-width: 1400px;
         margin: 0 auto;
         padding: 20px;
         background-color: #ffffff;
     }
-    
+
     .shop-header {
         text-align: center;
         margin-bottom: 40px;
         padding: 20px 0;
         border-bottom: 1px solid #e8e8e8;
     }
-    
+
     .shop-title {
         font-size: 2.5rem;
         font-weight: 300;
@@ -38,7 +37,7 @@
         letter-spacing: 2px;
         text-transform: uppercase;
     }
-    
+
     .search-filter-section {
         background-color: #f8f9fa;
         padding: 25px;
@@ -46,7 +45,7 @@
         margin-bottom: 40px;
         border: 1px solid #e9ecef;
     }
-    
+
     .search-input {
         height: 45px;
         border: 1px solid #ddd;
@@ -55,13 +54,13 @@
         padding: 0 15px;
         background-color: #ffffff;
     }
-    
-    .search-input:focus {
-        border-color: #333;
-        box-shadow: none;
-        outline: none;
-    }
-    
+
+        .search-input:focus {
+            border-color: #333;
+            box-shadow: none;
+            outline: none;
+        }
+
     .filter-select {
         height: 45px;
         border: 1px solid #ddd;
@@ -70,13 +69,13 @@
         padding: 0 15px;
         background-color: #ffffff;
     }
-    
-    .filter-select:focus {
-        border-color: #333;
-        box-shadow: none;
-        outline: none;
-    }
-    
+
+        .filter-select:focus {
+            border-color: #333;
+            box-shadow: none;
+            outline: none;
+        }
+
     .search-btn {
         height: 45px;
         background-color: #333;
@@ -89,18 +88,18 @@
         border-radius: 0;
         transition: background-color 0.3s ease;
     }
-    
-    .search-btn:hover {
-        background-color: #000;
-    }
-    
+
+        .search-btn:hover {
+            background-color: #000;
+        }
+
     .products-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 30px;
         margin-bottom: 50px;
     }
-    
+
     .product-card {
         background-color: #ffffff;
         border: 1px solid #e8e8e8;
@@ -108,12 +107,12 @@
         position: relative;
         overflow: hidden;
     }
-    
-    .product-card:hover {
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
-    }
-    
+
+        .product-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
     .product-image-container {
         position: relative;
         width: 100%;
@@ -121,18 +120,18 @@
         overflow: hidden;
         background-color: #f8f9fa;
     }
-    
+
     .product-image {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
     }
-    
+
     .product-card:hover .product-image {
         transform: scale(1.05);
     }
-    
+
     .new-arrival-badge {
         position: absolute;
         top: 10px;
@@ -145,12 +144,12 @@
         text-transform: uppercase;
         letter-spacing: 1px;
     }
-    
+
     .product-info {
         padding: 20px;
         text-align: center;
     }
-    
+
     .product-name {
         font-size: 14px;
         font-weight: 400;
@@ -160,7 +159,7 @@
         letter-spacing: 0.5px;
         line-height: 1.4;
     }
-    
+
     .product-description {
         font-size: 13px;
         color: #666;
@@ -172,21 +171,21 @@
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
     }
-    
+
     .product-price {
         font-size: 16px;
         color: #333;
         font-weight: 600;
         margin: 0 0 20px 0;
     }
-    
+
     .product-actions {
         display: flex;
         justify-content: center;
         gap: 8px;
         flex-wrap: wrap;
     }
-    
+
     .action-btn {
         padding: 8px 16px;
         font-size: 12px;
@@ -200,48 +199,134 @@
         transition: all 0.3s ease;
         min-width: 70px;
     }
-    
-    .action-btn:hover {
-        background-color: #333;
-        color: white;
-        text-decoration: none;
-    }
-    
-    .action-btn.btn-edit {
-        border-color: #28a745;
-        color: #28a745;
-    }
-    
-    .action-btn.btn-edit:hover {
-        background-color: #28a745;
-        color: white;
-    }
-    
-    .action-btn.btn-delete {
-        border-color: #dc3545;
-        color: #dc3545;
-    }
-    
-    .action-btn.btn-delete:hover {
-        background-color: #dc3545;
-        color: white;
-    }
-    
+
+        .action-btn:hover {
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+        }
+
+        .action-btn.btn-view {
+            border-color: #007bff;
+            color: #007bff;
+        }
+
+            .action-btn.btn-view:hover {
+                background-color: #007bff;
+                color: white;
+            }
+
+        .action-btn.btn-edit {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+            .action-btn.btn-edit:hover {
+                background-color: #28a745;
+                color: white;
+            }
+
+        .action-btn.btn-delete {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+            .action-btn.btn-delete:hover {
+                background-color: #dc3545;
+                color: white;
+            }
+
+        .action-btn.btn-cart {
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+
+            .action-btn.btn-cart:hover {
+                background-color: #ffc107;
+                color: #333;
+            }
+
+        .action-btn.btn-wishlist {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+            .action-btn.btn-wishlist:hover {
+                background-color: #dc3545;
+                color: white;
+            }
+
+            .action-btn.btn-wishlist.active {
+                background-color: #dc3545;
+                color: white;
+            }
+
+        .action-btn.btn-cart.added {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+
     .no-products {
         text-align: center;
         padding: 60px 20px;
         color: #666;
         font-size: 18px;
     }
-    
-    
+
+    .rating-display {
+        font-size: 0.9rem;
+        color: #ffc107;
+        margin-bottom: 8px;
+    }
+
+    .rating-text {
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .form-label {
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .row {
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+
+    .col-md-6, .col-md-4, .col-md-2 {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .mb-3 {
+        margin-bottom: 1rem;
+    }
+
+    .mb-md-0 {
+        margin-bottom: 0;
+    }
+
+    .align-items-end {
+        align-items: flex-end;
+    }
+
+    .w-100 {
+        width: 100%;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        box-sizing: border-box;
+    }
 </style>
 
 <div class="shop-container">
     <div class="shop-header">
         <h1 class="shop-title">FootBall Store</h1>
     </div>
-    
+
     <!-- Search & Filter Section -->
     <form method="get" asp-action="Index" class="search-filter-section">
         <div class="row align-items-end">
@@ -253,8 +338,8 @@
                 <label class="form-label text-muted text-uppercase" style="font-size: 12px; font-weight: 500; letter-spacing: 1px;">Sort By Price</label>
                 <select name="sortBy" class="form-select filter-select">
                     <option value="">-- Default --</option>
-                    <option value="price_asc" selected="@(currentSort == "price_asc")">Giá Tăng Dần </option>
-                    <option value="price_desc" selected="@(currentSort == "price_desc")">Giá Giảm Dần </option>
+                    <option value="price_asc" selected="@(currentSort == "price_asc")">Giá Tăng Dần</option>
+                    <option value="price_desc" selected="@(currentSort == "price_desc")">Giá Giảm Dần</option>
                 </select>
             </div>
             <div class="col-md-2">
@@ -262,31 +347,52 @@
             </div>
         </div>
     </form>
-    
+
     <!-- Products Grid -->
-    @if (Model.Any())
+    @if (Model != null && Model.Any())
     {
         <div class="products-grid">
-            @foreach (var product in Model)
+            @foreach (var item in Model)
             {
                 <div class="product-card">
                     <div class="product-image-container">
-                        <img src="@(product.ImageUrl ?? "/images/default-product.jpg")"
-                             class="product-image"
-                             alt="@product.Name">
+                        @{
+                            string productImageUrl = "/images/OIP.jpg";
+                            if (item.Images != null && item.Images.Any() && !string.IsNullOrEmpty(item.Images.First().Url))
+                            {
+                                productImageUrl = item.Images.First().Url;
+                            }
+                            else if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                productImageUrl = item.ImageUrl;
+                            }
+                        }
+                        <img src="@productImageUrl" class="product-image" alt="@item.Name" onerror="this.src='/images/OIP.jpg';">
                         <div class="new-arrival-badge">Hot</div>
                     </div>
                     <div class="product-info">
-                        <h3 class="product-name">@product.Name</h3>
-                        <p class="product-description">@product.Description</p>
-                        <div class="product-price">$@product.Price</div>
+                        <h3 class="product-name">@item.Name</h3>
+                        <p class="product-description">@item.Description</p>
+
+                       
+
+                        <div class="product-price">$@item.Price</div>
                         <div class="product-actions">
-                            <a asp-action="Display" asp-route-id="@product.Id" class="action-btn">View</a>
-                            @if (User.IsInRole("Admin"))
+                            <a asp-action="Display" asp-route-id="@item.Id" class="action-btn btn-view">View</a>
+
+                            @if (!User.IsInRole("Admin"))
                             {
-                                <a asp-action="Update" asp-route-id="@product.Id" class="action-btn btn-edit">Edit</a>
-                                <a asp-action="Delete" asp-route-id="@product.Id" class="action-btn btn-delete"
-                                   onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
+                                <button type="button" class="action-btn btn-cart add-to-cart-btn" data-product-id="@item.Id" title="Thêm vào giỏ hàng">
+                                    <i class="fas fa-cart-plus"></i> Cart
+                                </button>
+                                <button type="button" class="action-btn btn-wishlist add-to-wishlist-btn" data-product-id="@item.Id" title="Thêm vào danh sách yêu thích">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-action="Update" asp-route-id="@item.Id" class="action-btn btn-edit">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="action-btn btn-delete" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
                             }
                         </div>
                     </div>
@@ -302,113 +408,15 @@
         </div>
     }
 </div>
+
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-@Html.AntiForgeryToken() <!-- CSRF Token -->
-<!-- Form Tìm kiếm, filter, sort -->
-<form method="get" asp-action="Index" class="row mb-4">
-    <div class="col-md-4">
-        <input type="text" name="searchName" value="@currentSearch" class="form-control" placeholder="Tìm theo tên sản phẩm..." />
-    </div>
-    <div class="col-md-3">
-        <select name="categoryId" class="form-select">
-            <option value="">-- Lọc theo danh mục --</option>
-            @foreach (var cat in (SelectList)ViewBag.Categories)
-            {
-                <option value="@cat.Value" selected="@(cat.Value == currentCategory?.ToString())">@cat.Text</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-3">
-        <select name="sortBy" class="form-select">
-            <option value="">-- Sắp xếp theo giá --</option>
-            <option value="price_asc" selected="@(currentSort == "price_asc")">Giá tăng dần</option>
-            <option value="price_desc" selected="@(currentSort == "price_desc")">Giá giảm dần</option>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
-    </div>
-</form>
+@Html.AntiForgeryToken()
 
-<!-- Danh sách sản phẩm -->
-<div class="row">
-    @foreach (var product in Model)
-    {
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow">
-                <img src="@(product.ImageUrl ?? "/images/default-product.jpg")"
-                     class="card-img-top"
-                     alt="@product.Name"
-                     style="height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;" />
-
-                <div class="card-body d-flex justify-content-between">
-                    <!-- Thông tin sản phẩm bên trái -->
-                    <div class="flex-grow-1">
-                        <h5 class="card-title">@product.Name</h5>
-                        <p class="card-text text-muted mb-1">@product.Description</p>
-                        <p class="card-text text-primary font-weight-bold mb-0">@product.Price.ToString("N0") đ</p>
-                    </div>
-
-                    <!-- Rating bên phải -->
-                    <div class="text-center ms-3" style="min-width: 60px;">
-                        @if (product.AverageRating > 0)
-                        {
-                            <p class="m-0 text-warning" style="font-size:1.2rem;">
-                                @(product.AverageRating?.ToString("0.0") ?? "0.0") ★
-                            </p>
-
-                            <small class="text-muted">(@product.ReviewCount lượt)</small>
-                        }
-                        else
-                        {
-                            <small class="text-muted">Chưa có<br />đánh giá</small>
-                        }
-                    </div>
-                </div>
-
-                <div class="card-footer bg-transparent border-0 d-flex justify-content-between flex-wrap gap-2">
-                    <a asp-action="Display" asp-route-id="@product.Id"
-                       class="btn btn-sm btn-outline-primary">
-                        Xem
-                    </a>
-
-                    @if (!User.IsInRole("Admin"))
-                    {
-                        <!-- Nút giỏ hàng -->
-                        <button type="button"
-                                class="btn btn-sm btn-outline-warning add-to-cart-btn"
-                                data-product-id="@product.Id"
-                                title="Thêm vào giỏ hàng">
-                            <i class="fas fa-cart-plus me-1"></i> Giỏ hàng
-                        </button>
-
-                        <!-- Nút yêu thích -->
-                        <button type="button"
-                                class="btn btn-sm btn-outline-danger add-to-wishlist-btn"
-                                data-product-id="@product.Id"
-                                title="Thêm vào danh sách yêu thích">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                    }
-
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <a asp-action="Update" asp-route-id="@product.Id" class="btn btn-sm btn-outline-success">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@product.Id"
-                           class="btn btn-sm btn-outline-danger"
-                           onclick="return confirm('Bạn chắc chắn xóa sản phẩm?');">Delete</a>
-                    }
-                </div>
-            </div>
-        </div>
-    }
-</div>
-
-@section Scripts {
-    <script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
         const token = '@Antiforgery.GetAndStoreTokens(Context).RequestToken';
 
-        // Xử lý nút thêm vào danh sách yêu thích
+        // Wishlist functionality
         document.querySelectorAll(".add-to-wishlist-btn").forEach(btn => {
             btn.addEventListener("click", function () {
                 const productId = this.dataset.productId;
@@ -419,7 +427,12 @@
                     .then(res => {
                         if (res.ok) {
                             this.classList.toggle('active');
-                            this.querySelector('i').classList.toggle('text-danger');
+                            const icon = this.querySelector('i');
+                            if (this.classList.contains('active')) {
+                                this.title = "Đã thêm vào danh sách yêu thích";
+                            } else {
+                                this.title = "Thêm vào danh sách yêu thích";
+                            }
                         } else {
                             alert("Thêm vào danh sách yêu thích thất bại.");
                         }
@@ -428,7 +441,7 @@
             });
         });
 
-        // Xử lý nút thêm vào giỏ hàng
+        // Cart functionality
         document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
             btn.addEventListener("click", async function () {
                 const productId = this.dataset.productId;
@@ -445,9 +458,10 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        this.innerHTML = '<i class="fas fa-check"></i> Đã thêm';
-                        this.classList.add('btn-success');
+                        this.innerHTML = '<i class="fas fa-check"></i> Added';
+                        this.classList.add('added');
                         this.disabled = true;
+                        this.title = "Đã thêm vào giỏ hàng";
                     } else {
                         alert(data.message || "Không thể thêm vào giỏ hàng.");
                     }
@@ -457,10 +471,5 @@
                 }
             });
         });
-    </script>
-    <style>
-        .add-to-wishlist-btn.active i {
-            color: red;
-        }
-    </style>
-}
+    });
+</script>

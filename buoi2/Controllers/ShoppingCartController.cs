@@ -1,4 +1,5 @@
-﻿using buoi2.Models;
+﻿using buoi2.Extensions;
+using buoi2.Models;
 using buoi2.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,14 +13,8 @@ namespace buoi2.Controllers
     public class ShoppingCartController : Controller
     {
         private readonly IProductRepository _productRepository;
-
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-
-        public ShoppingCartController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IProductRepository productRepository)
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IProductRepository _productRepository;
 
         public ShoppingCartController(
             ApplicationDbContext context,
@@ -76,96 +71,64 @@ namespace buoi2.Controllers
             return Json(new { success = true });
         }
 
-        public IActionResult Checkout()
-        public async Task<IActionResult> RemoveFromCart(int productId)
-
+        public IActionResult RemoveFromCart(int productId)
         {
-            var user = await _userManager.GetUserAsync(User);
-            var cartItem = await _context.CartItems
-                .FirstOrDefaultAsync(ci => ci.UserId == user.Id && ci.ProductId == productId);
-
-            if (cartItem != null)
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
+            if (cart is not null)
             {
-                _context.CartItems.Remove(cartItem);
-                await _context.SaveChangesAsync();
+                cart.RemoveItem(productId);
+                HttpContext.Session.SetObjectAsJson("Cart", cart);
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
         public async Task<IActionResult> Checkout()
         {
             var user = await _userManager.GetUserAsync(User);
-
             var cartItems = await _context.CartItems
                 .Where(ci => ci.UserId == user.Id)
                 .Include(ci => ci.Product)
                 .ToListAsync();
 
-            // Nếu có sản phẩm nào số lượng <= 0 thì không cho vào view thanh toán
             var invalidItems = cartItems.Where(ci => ci.Quantity <= 0).ToList();
             if (invalidItems.Any())
             {
-                TempData["Error"] = "Có sản phẩm trong giỏ hàng có số lượng không hợp lệ . Vui lòng xóa hoặc chỉnh lại.";
-                return RedirectToAction("Index"); // Về lại trang giỏ hàng
+                TempData["Error"] = "Có sản phẩm trong giỏ hàng có số lượng không hợp lệ. Vui lòng xóa hoặc chỉnh lại.";
+                return RedirectToAction("Index");
             }
 
-            var shoppingCart = new ShoppingCart { Items = cartItems };
-            var order = new Order();
-
-            ViewBag.Cart = shoppingCart;
-            return View(order);
+            ViewBag.Cart = new ShoppingCart { Items = cartItems };
+            return View(new Order());
         }
-
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(Order order)
         {
-            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
-
-            if (cart == null || !cart.Items.Any())
             var user = await _userManager.GetUserAsync(User);
-
             var cartItems = await _context.CartItems
                 .Where(ci => ci.UserId == user.Id)
                 .ToListAsync();
 
-            // Loại bỏ sản phẩm số lượng = 0
-            var invalidItems = cartItems.Where(ci => ci.Quantity <= 0).ToList();
+            var validItems = cartItems.Where(ci => ci.Quantity > 0).ToList();
 
-            if (!invalidItems.Any())
-            {
-                ModelState.AddModelError("", "Không có sản phẩm nào hợp lệ để đặt hàng (số lượng phải > 0).");
-                ViewBag.Cart = new ShoppingCart { Items = invalidItems };
-                return View(order);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            order.UserId = user.Id;
-            order.OrderDate = DateTime.UtcNow;
-            order.TotalPrice = cart.Items.Sum(i => i.Price * i.Quantity);
-            order.OrderDetails = cart.Items.Select(i => new OrderDetail
-            // Kiểm tra tồn kho
-            foreach (var item in invalidItems)
+            foreach (var item in validItems)
             {
                 var product = await _productRepository.GetByIdAsync(item.ProductId);
                 if (product == null || product.Stock < item.Quantity)
                 {
                     ModelState.AddModelError("", $"Sản phẩm {item.Name} không đủ tồn kho.");
-                    ViewBag.Cart = new ShoppingCart { Items = invalidItems };
+                    ViewBag.Cart = new ShoppingCart { Items = validItems };
                     return View(order);
                 }
             }
 
-            // Tiến hành tạo Order
             order.UserId = user.Id;
             order.OrderDate = DateTime.UtcNow;
-            order.TotalPrice = invalidItems.Sum(i => i.Quantity * i.Price);
+            order.TotalPrice = validItems.Sum(i => i.Quantity * i.Price);
             order.Status = OrderStatus.Pending;
-
-            order.OrderDetails = invalidItems.Select(ci => new OrderDetail
+            order.OrderDetails = validItems.Select(ci => new OrderDetail
             {
                 ProductId = ci.ProductId,
                 Quantity = ci.Quantity,
@@ -173,43 +136,6 @@ namespace buoi2.Controllers
             }).ToList();
 
             _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-            HttpContext.Session.Remove("Cart");
-            return View("OrderCompleted", order.Id);
-        }
-
-
-
-        public async Task<IActionResult> AddToCart(int productId, int quantity)
-        {
-            // Giả sử bạn có phương thức lấy thông tin sản phẩm từ productId
-            var product = await GetProductFromDatabase(productId);
-
-            var cartItem = new CartItem
-            {
-                ProductId = productId,
-                Name = product.Name,
-                Price = product.Price,
-                Quantity = quantity
-            };
-
-            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ??
-                       new ShoppingCart();
-            cart.AddItem(cartItem);
-            HttpContext.Session.SetObjectAsJson("Cart", cart);
-
-            return RedirectToAction("Index");
-        }
-
-        public IActionResult Index()
-        {
-            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ??
-                       new ShoppingCart();
-            return View(cart);
-        }
-
-        // Các actions khác...
-        private async Task<Product> GetProductFromDatabase(int productId)
 
             foreach (var detail in order.OrderDetails)
             {
@@ -221,13 +147,11 @@ namespace buoi2.Controllers
                 }
             }
 
-            _context.CartItems.RemoveRange(cartItems); // Xóa hết giỏ cũ
+            _context.CartItems.RemoveRange(cartItems);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("OrderCompleted", new { id = order.Id });
+            return View("OrderCompleted", order);
         }
-
-
 
         public async Task<IActionResult> OrderCompleted(int id)
         {
@@ -285,19 +209,6 @@ namespace buoi2.Controllers
             return View(orders);
         }
 
-        public IActionResult RemoveFromCart(int productId)
-        {
-            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
-
-            if (cart is not null)
-            {
-                cart.RemoveItem(productId);
-
-                // Lưu lại giỏ hàng vào Session sau khi đã xóa mục
-                HttpContext.Session.SetObjectAsJson("Cart", cart);
-            }
-
-            return RedirectToAction("Index");
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateQuantity([FromBody] UpdateQuantityRequest request)
         {
@@ -340,11 +251,5 @@ namespace buoi2.Controllers
             public int ProductId { get; set; }
             public int Quantity { get; set; }
         }
-
-        private async Task<Product> GetProductFromDatabase(int productId)
-        {
-            return await _productRepository.GetByIdAsync(productId);
-        }
-
     }
 }

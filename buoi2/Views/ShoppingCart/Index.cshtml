@@ -1,5 +1,9 @@
 ﻿@model ShoppingCart
 
+@{
+    ViewData["Title"] = "Giỏ hàng của bạn";
+}
+
 <style>
     .cart-container {
         max-width: 1200px;
@@ -39,29 +43,29 @@
         background-color: #ffffff;
     }
 
-    .cart-table th {
-        background-color: #f8f9fa;
-        color: #333;
-        font-weight: 500;
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 20px 15px;
-        text-align: left;
-        border-bottom: 2px solid #e8e8e8;
-    }
+        .cart-table th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: 500;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 20px 15px;
+            text-align: left;
+            border-bottom: 2px solid #e8e8e8;
+        }
 
-    .cart-table td {
-        padding: 20px 15px;
-        border-bottom: 1px solid #f0f0f0;
-        color: #333;
-        font-size: 14px;
-        vertical-align: middle;
-    }
+        .cart-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            font-size: 14px;
+            vertical-align: middle;
+        }
 
-    .cart-table tr:hover {
-        background-color: #fafafa;
-    }
+        .cart-table tr:hover {
+            background-color: #fafafa;
+        }
 
     .product-name {
         font-weight: 500;
@@ -98,14 +102,14 @@
         display: inline-block;
     }
 
-    .remove-btn:hover {
-        background-color: #dc3545;
-        color: white;
-        text-decoration: none;
-    }
+        .remove-btn:hover {
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+        }
 
     .checkout-section {
-        text-align: center;
+        text-align: right; /* Đổi sang phải để phù hợp với tổng tiền */
         padding: 30px 0;
         border-top: 1px solid #e8e8e8;
     }
@@ -122,15 +126,15 @@
         text-decoration: none;
         transition: all 0.3s ease;
         display: inline-block;
-        margin: 10px;
+        margin-left: 10px; /* Điều chỉnh margin */
     }
 
-    .checkout-btn:hover {
-        background-color: #000;
-        color: white;
-        text-decoration: none;
-        transform: translateY(-2px);
-    }
+        .checkout-btn:hover {
+            background-color: #000;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
 
     .empty-cart {
         text-align: center;
@@ -138,36 +142,117 @@
         color: #666;
     }
 
-    .empty-cart i {
-        font-size: 64px;
-        color: #ddd;
+        .empty-cart i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-cart p {
+            font-size: 18px;
+            margin: 0;
+        }
+
+    /* Styles for quantity input */
+    .quantity-input {
+        width: 80px; /* Điều chỉnh chiều rộng input số lượng */
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    /* Styles for alert messages */
+    .alert {
+        padding: 15px;
         margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        text-align: left;
     }
 
-    .empty-cart p {
-        font-size: 18px;
-        margin: 0;
+    .alert-danger {
+        color: #a94442;
+        background-color: #f2dede;
+        border-color: #ebccd1;
     }
 
-   
+    .alert-info {
+        color: #31708f;
+        background-color: #d9edf7;
+        border-color: #bce8f1;
+    }
+
+    .badge {
+        display: inline-block;
+        min-width: 10px;
+        padding: 3px 7px;
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 1;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        border-radius: .25em;
+    }
+
+    .bg-info {
+        background-color: #17a2b8 !important;
+    }
 </style>
 
 <div class="cart-container">
     <div class="cart-header">
-        <h2 class="cart-title">Your Cart</h2>
+        <h2 class="cart-title">Giỏ hàng của bạn</h2>
     </div>
 
-    @if (Model.Items != null && Model.Items.Any())
+    @* Thông báo lỗi *@
+    @if (TempData["Error"] != null)
     {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <p>@error.ErrorMessage</p>
+            }
+        </div>
+    }
+
+    <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+
+    @* Nếu giỏ hàng trống *@
+    @if (Model.Items == null || !Model.Items.Any())
+    {
+        <div class="empty-cart">
+            <i class="fas fa-shopping-bag"></i>
+            <p>Giỏ hàng của bạn đang trống.</p>
+            <a asp-controller="Product" asp-action="Index" class="checkout-btn" style="margin-top: 20px;">
+                <i class="fas fa-shopping-cart"></i> Mua sắm ngay!
+            </a>
+        </div>
+    }
+    else
+    {
+        @Html.AntiForgeryToken()
+
         <div class="cart-table-container">
             <table class="cart-table">
                 <thead>
                     <tr>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                        <th>Action</th>
+                        <th>Sản phẩm</th>
+                        <th>Số lượng</th>
+                        <th>Tồn kho</th>
+                        <th>Giá</th>
+                        <th>Thành tiền</th>
+                        <th>Xóa</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -175,11 +260,20 @@
                     {
                         <tr>
                             <td class="product-name">@item.Name</td>
-                            <td class="quantity-cell">@item.Quantity</td>
-                            <td class="price-cell">$@item.Price</td>
-                            <td class="total-cell">$@(item.Price * item.Quantity)</td>
+                            <td class="quantity-cell">
+                                <input type="number"
+                                       min="1"
+                                       max="@item.Stock"
+                                       value="@item.Quantity"
+                                       class="quantity-input"
+                                       data-product-id="@item.ProductId"
+                                       data-max-stock="@item.Stock" />
+                            </td>
+                            <td><span class="badge bg-info">@item.Stock</span></td>
+                            <td class="price-cell">@item.Price.ToString("N0") VND</td>
+                            <td class="total-cell item-subtotal">@item.SubTotal.ToString("N0") VND</td>
                             <td>
-                                <a asp-action="RemoveFromCart" asp-route-productId="@item.ProductId" class="remove-btn">Remove</a>
+                                <a asp-action="RemoveFromCart" asp-route-productId="@item.ProductId" class="remove-btn">Xóa</a>
                             </td>
                         </tr>
                     }
@@ -188,132 +282,51 @@
         </div>
 
         <div class="checkout-section">
+            <h4 class="text-end" style="font-size: 1.5rem; font-weight: 500; color: #333; margin-bottom: 20px;">
+                Tổng tiền:
+                <span id="total-cart" style="color: #007bff; font-weight: 700;">@Model.GetTotal().ToString("N0")</span> VND
+            </h4>
             <a asp-action="Checkout" class="checkout-btn">
-                Tới trang thanh toán
+                <i class="fas fa-cash-register"></i> Thanh toán
             </a>
         </div>
     }
-    else
-    {
-        <div class="empty-cart">
-            <i class="fas fa-shopping-bag"></i>
-            <p>Your cart is empty</p>
-        </div>
-    }
 </div>
-﻿@model buoi2.Models.ShoppingCart
-
-@{
-    ViewData["Title"] = "Giỏ hàng của bạn";
-}
-
-<h2>Giỏ hàng của bạn</h2>
-
-@* Thông báo lỗi *@
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["Error"]
-    </div>
-}
-
-@if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-{
-    <div class="alert alert-danger">
-        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-        {
-            <p>@error.ErrorMessage</p>
-        }
-    </div>
-}
-
-<div id="error-message" class="alert alert-danger" style="display: none;"></div>
-
-@* Nếu giỏ hàng trống *@
-@if (!Model.Items.Any())
-{
-    <div class="alert alert-info">
-        Giỏ hàng của bạn đang trống.
-        <a asp-controller="Product" asp-action="Index">Mua sắm ngay!</a>
-    </div>
-}
-else
-{
-    @Html.AntiForgeryToken()
-
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Sản phẩm</th>
-                <th>Số lượng</th>
-                <th>Tồn kho</th>
-                <th>Giá</th>
-                <th>Thành tiền</th>
-                <th>Xóa</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Items)
-            {
-                <tr>
-                    <td>@item.Name</td>
-                    <td>
-                        <input type="number"
-                               min="1"
-                               max="@item.Stock"
-                               value="@item.Quantity"
-                               class="form-control w-50 quantity-input"
-                               data-product-id="@item.ProductId"
-                               data-max-stock="@item.Stock" />
-                    </td>
-                    <td><span class="badge bg-info">@item.Stock</span></td>
-                    <td>@item.Price.ToString("N0")</td>
-                    <td class="item-subtotal">@item.SubTotal.ToString("N0")</td>
-                    <td>
-                        <a asp-action="RemoveFromCart" asp-route-productId="@item.ProductId" class="btn btn-danger btn-sm">Xóa</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <h4 class="text-end">
-        Tổng tiền:
-        <span id="total-cart">@Model.GetTotal().ToString("N0")</span> VND
-    </h4>
-
-    <div class="text-end mt-3">
-        <a asp-action="Checkout" class="btn btn-success">Thanh toán</a>
-    </div>
-}
 
 @section Scripts {
     <script>
+        // Đảm bảo Font Awesome được tải nếu chưa có
+        if (typeof FontAwesomeConfig === 'undefined') {
+            const fontAwesomeLink = document.createElement('link');
+            fontAwesomeLink.rel = 'stylesheet';
+            fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
+            document.head.appendChild(fontAwesomeLink);
+        }
+
         const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
         function showError(message) {
             const div = document.getElementById('error-message');
             div.innerText = message;
             div.style.display = 'block';
-            setTimeout(() => div.style.display = 'none', 5000);
+            setTimeout(() => div.style.display = 'none', 5000); // Ẩn sau 5 giây
         }
 
         document.querySelectorAll(".quantity-input").forEach(input => {
             input.addEventListener("change", async function () {
                 const productId = this.dataset.productId;
                 const maxStock = parseInt(this.dataset.maxStock);
-                let qty = parseInt(this.value) || 1;
+                let qty = parseInt(this.value) || 1; // Đảm bảo qty là số, nếu không thì mặc định là 1
 
                 if (qty <= 0) {
-                    showError("Số lượng phải lớn hơn 0");
-                    qty = 1;
+                    showError("Số lượng phải lớn hơn 0.");
+                    qty = 1; // Đặt lại về 1 nếu nhập số âm hoặc 0
                 } else if (qty > maxStock) {
-                    showError(`Số lượng không được vượt quá tồn kho (${maxStock})`);
-                    qty = maxStock;
+                    showError(`Số lượng không được vượt quá số lượng tồn kho (${maxStock}).`);
+                    qty = maxStock; // Đặt lại về maxStock nếu vượt quá
                 }
 
-                this.value = qty;
+                this.value = qty; // Cập nhật giá trị hiển thị trên input
 
                 try {
                     const res = await fetch('@Url.Action("UpdateQuantity", "ShoppingCart")', {
@@ -327,17 +340,26 @@ else
 
                     const data = await res.json();
                     if (data.success) {
-                        this.closest('tr').querySelector('.item-subtotal').textContent = new Intl.NumberFormat('vi-VN').format(data.subtotal);
+                        // Cập nhật thành tiền của từng dòng sản phẩm
+                        this.closest('tr').querySelector('.item-subtotal').textContent = new Intl.NumberFormat('vi-VN').format(data.subtotal) + ' VND';
+                        // Cập nhật tổng tiền của giỏ hàng
                         document.getElementById('total-cart').textContent = new Intl.NumberFormat('vi-VN').format(data.total);
-                        this.value = data.actualQuantity;
+                        // Cập nhật lại giá trị input nếu backend trả về số lượng thực tế khác (ví dụ, nếu vượt quá stock và backend tự điều chỉnh)
+                        this.value = data.actualQuantity || qty;
                     } else {
                         showError(data.message);
+                        // Quay lại số lượng cũ nếu có lỗi từ server, hoặc mặc định là 1
                         this.value = data.actualQuantity || 1;
                     }
                 } catch (e) {
-                    showError('Không thể cập nhật số lượng.');
+                    console.error("Lỗi khi cập nhật số lượng:", e);
+                    showError('Không thể cập nhật số lượng. Vui lòng thử lại.');
+                    // Nếu có lỗi mạng, quay lại số lượng ban đầu hoặc 1
+                    this.value = parseInt(this.dataset.originalQuantity) || 1;
                 }
             });
+            // Lưu giá trị số lượng ban đầu để có thể khôi phục khi có lỗi
+            input.dataset.originalQuantity = input.value;
         });
     </script>
 }

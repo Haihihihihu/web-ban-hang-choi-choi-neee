@@ -16,7 +16,10 @@ namespace buoi2.Repositories
 
         public async Task<IEnumerable<Product>> GetAllAsync(string searchName = null, string sortBy = null, int? categoryId = null)
         {
-            var query = _context.Products.AsQueryable();
+            var query = _context.Products
+                .Include(p => p.Images)
+                .Include(p => p.Category)
+                .AsQueryable();
 
             // Lọc theo tên
             if (!string.IsNullOrEmpty(searchName))
@@ -46,7 +49,10 @@ namespace buoi2.Repositories
 
         public async Task<Product> GetByIdAsync(int id)
         {
-            return await _context.Products.FindAsync(id);
+            return await _context.Products
+                .Include(p => p.Images)
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task AddAsync(Product product)
@@ -66,6 +72,19 @@ namespace buoi2.Repositories
             var product = await GetByIdAsync(id);
             if (product != null)
             {
+                // Xóa các ProductReview records trước
+                var reviews = await _context.ProductReviews.Where(r => r.ProductId == id).ToListAsync();
+                if (reviews.Any())
+                {
+                    _context.ProductReviews.RemoveRange(reviews);
+                }
+                
+                // Xóa các ProductImage records trước
+                if (product.Images != null && product.Images.Any())
+                {
+                    _context.ProductImages.RemoveRange(product.Images);
+                }
+                
                 _context.Products.Remove(product);
                 await _context.SaveChangesAsync();
             }
@@ -76,7 +95,7 @@ namespace buoi2.Repositories
             return await _context.ProductReviews
                                  .Where(r => r.ProductId == productId)
                                  .OrderByDescending(r => r.CreatedAt)
-                                 .ToListAsync();    
+                                 .ToListAsync();
         }
 
         public async Task AddReviewAsync(ProductReview review)

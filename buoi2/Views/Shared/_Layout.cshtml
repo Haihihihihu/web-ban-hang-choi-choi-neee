@@ -4,121 +4,142 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - buoi2</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"
-          rel="stylesheet" />
+    @RenderSection("Styles", required: false)
+
+    <!-- Bootstrap 5 & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Site CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/buoi2.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+    <!-- jQuery & Validation -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 </head>
 <body>
+    <!-- HEADER / NAVBAR -->
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-3">
             <div class="container">
-                <!-- Logo thương hiệu -->
-                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-cart-fill me-2"></i> FOOTBALL STORE
+                <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-cart-fill fs-4"></i>
+                    <span>FOOTBALL STORE</span>
                 </a>
-                <!-- Toggle button -->
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <!-- Navbar links -->
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav mx-auto">
-                        <li class="nav-item">
-                            <a class="nav-link active text-primary" asp-area="" asp-controller="Home" asp-action="Index">Trang Chủ</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Chính Sách</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Index">Sản Phẩm</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>
-                        </li>
 
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                        
+                        @if (!User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link active text-primary" asp-controller="Home" asp-action="Index">Trang Chủ</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Home" asp-action="Privacy">Chính Sách</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Product" asp-action="Index">Sản Phẩm</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Home" asp-action="Contact">Liên Hệ</a>
+                            </li>
+                        }
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="admin" asp-action="productmanager">Thêm Sản Phẩm</a>
-
-                                <a class="nav-link" href="/Admin/ProductManager/Index">Admin</a>
+                                <a href="/Admin/ProductManager/Index">Trang Admin</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="ProductManager" asp-action="add">Thêm Sản Phẩm</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="CategoryManager" asp-action="Add">Thêm Danh Mục</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="ProductManager" asp-action="add">QL Trạng Thái Đơn Hàng</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="ProductManager" asp-action="add">Thống Kê</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="ProductManager" asp-action="add">FeedBack</a>
+                            </li>
+                            <li class="nav-item">
+                            <a href="/home/index">Trang Chủ</a>
                             </li>
                         }
                     </ul>
-                    <div class="d-flex">
+                    <div class="d-flex align-items-center gap-2">
                         <partial name="_LoginPartial" />
-                        <a asp-controller="Wishlist" asp-action="Index" class="btn btn-outline-danger me-2">
-                            <i class="fas fa-heart"></i> Wishlist
-                        </a>
-                        <a asp-controller="ShoppingCart" asp-action="Index" class="btn btn-outline-dark">
-                            🛒 Cart
-                            <span class="badge bg-dark text-white ms-1 rounded-pill" id="cart-count">0</span>
-                        </a>
                     </div>
+                    @if (!User.IsInRole("Admin"))
+                    {
+                        <div class="d-flex align-items-center gap-2">
+                            <a asp-controller="Wishlist" asp-action="Index" class="btn btn-outline-danger">
+                                <i class="fas fa-heart"></i> Wishlist
+                            </a>
+                            <a asp-controller="ShoppingCart" asp-action="Index" class="btn btn-outline-dark position-relative">
+                                🛒 Cart
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count">0</span>
+                            </a>
+                        </div>
+                    }
+
+
                 </div>
             </div>
         </nav>
     </header>
+
+    <!-- MAIN CONTENT -->
     <div class="container-fluid p-0">
         <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    @* Footer cũ đã được xóa - Footer mới sẽ nằm trong từng trang riêng *@
+    <!-- FOOTER -->
+    <footer class="bg-dark text-light mt-5 pt-4 pb-3">
+        <div class="container">
+            <div class="row">
+                <!-- Chi nhánh -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="text-warning">Chi nhánh Khu E</h5>
+                    <p>Địa chỉ: 31/36 Ung Văn Khiêm, Bình Thạnh, TP.HCM</p>
+                    <p>Hotline: 0901 234 567</p>
+                </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+                <div class="col-md-4 mb-3">
+                    <h5 class="text-warning">Chi nhánh Khu A&B</h5>
+                    <p>Địa chỉ: 475A Điện Biên Phủ, Bình Thạnh, TP.HCM</p>
+                    <p>Hotline: 0902 345 678</p>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <h5 class="text-warning">Chi nhánh Khu U</h5>
+                    <p>Địa chỉ: 80/86 D2 (Nguyễn Gia Trí), Bình Thạnh, TP.HCM</p>
+                    <p>Hotline: 0903 456 789</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <small>© 2025 Web Bán Hàng. All rights reserved.</small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
-<footer class="bg-dark text-light mt-5 pt-4 pb-3">
-    <div class="container">
-        <div class="row">
-            <!-- Chi nhánh Khu E -->
-            <div class="col-md-4 mb-3">
-                <h5 class="text-warning">Chi nhánh Khu E</h5>
-                <p>Địa chỉ: 31/36 Ung Văn Khiêm, Bình Thạnh, TP.HCM</p>
-                <p>Hotline: 0901 234 567</p>
-            </div>
-
-            <!-- Chi nhánh Khu A&B -->
-            <div class="col-md-4 mb-3">
-                <h5 class="text-warning">Chi nhánh Khu A&B</h5>
-                <p>Địa chỉ: 475A Điện Biên Phủ, Bình Thạnh, TP.HCM</p>
-                <p>Hotline: 0902 345 678</p>
-            </div>
-
-            <!-- Chi nhánh Khu U -->
-            <div class="col-md-4 mb-3">
-                <h5 class="text-warning">Chi nhánh Khu U</h5>
-                <p>Địa chỉ: 80/86 D2 (Nguyễn Gia Trí), Bình Thạnh, TP.HCM</p>
-                <p>Hotline: 0903 456 789</p>
-            </div>
-        </div>
-
-        <!-- Bản đồ -->
-        <div class="row">
-            <div class="col-12">
-                <h5 class="text-warning">Bản đồ hệ thống cửa hàng</h5>
-                <div id="map" style="height: 350px; width: 100%; border-radius: 10px; overflow: hidden;"></div>
-            </div>
-        </div>
-
-        <div class="text-center mt-3">
-            <small>© 2025 Web Bán Hàng. All rights reserved.</small>
-        </div>
-    </div>
-</footer>
 </html>

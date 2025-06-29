@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @RenderSection("Styles", required: false)
 </head>
 <body>
     <header>
@@ -24,7 +25,7 @@
             <div class="container">
                 <!-- Logo thương hiệu -->
                 <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-cart-fill me-2"></i> Web bán hàng
+                    <i class="bi bi-cart-fill me-2"></i> FOOTBALL STORE
                 </a>
                 <!-- Toggle button -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -35,25 +36,37 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item">
-                            <a class="nav-link active text-primary" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link active text-primary" asp-area="" asp-controller="Home" asp-action="Index">Trang Chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Chính Sách</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Index">Product</a>
+                            <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Index">Sản Phẩm</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>
                         </li>
+
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="admin" asp-action="productmanager">Thêm Sản Phẩm</a>
+
                                 <a class="nav-link" href="/Admin/ProductManager/Index">Admin</a>
                             </li>
                         }
                     </ul>
-                    
+                    <div class="d-flex">
+                        <partial name="_LoginPartial" />
+                        <a asp-controller="Wishlist" asp-action="Index" class="btn btn-outline-danger me-2">
+                            <i class="fas fa-heart"></i> Wishlist
+                        </a>
+                        <a asp-controller="ShoppingCart" asp-action="Index" class="btn btn-outline-dark">
+                            🛒 Cart
+                            <span class="badge bg-dark text-white ms-1 rounded-pill" id="cart-count">0</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -71,3 +84,42 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+<footer class="bg-dark text-light mt-5 pt-4 pb-3">
+    <div class="container">
+        <div class="row">
+            <!-- Chi nhánh Khu E -->
+            <div class="col-md-4 mb-3">
+                <h5 class="text-warning">Chi nhánh Khu E</h5>
+                <p>Địa chỉ: 31/36 Ung Văn Khiêm, Bình Thạnh, TP.HCM</p>
+                <p>Hotline: 0901 234 567</p>
+            </div>
+
+            <!-- Chi nhánh Khu A&B -->
+            <div class="col-md-4 mb-3">
+                <h5 class="text-warning">Chi nhánh Khu A&B</h5>
+                <p>Địa chỉ: 475A Điện Biên Phủ, Bình Thạnh, TP.HCM</p>
+                <p>Hotline: 0902 345 678</p>
+            </div>
+
+            <!-- Chi nhánh Khu U -->
+            <div class="col-md-4 mb-3">
+                <h5 class="text-warning">Chi nhánh Khu U</h5>
+                <p>Địa chỉ: 80/86 D2 (Nguyễn Gia Trí), Bình Thạnh, TP.HCM</p>
+                <p>Hotline: 0903 456 789</p>
+            </div>
+        </div>
+
+        <!-- Bản đồ -->
+        <div class="row">
+            <div class="col-12">
+                <h5 class="text-warning">Bản đồ hệ thống cửa hàng</h5>
+                <div id="map" style="height: 350px; width: 100%; border-radius: 10px; overflow: hidden;"></div>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <small>© 2025 Web Bán Hàng. All rights reserved.</small>
+        </div>
+    </div>
+</footer>
+</html>

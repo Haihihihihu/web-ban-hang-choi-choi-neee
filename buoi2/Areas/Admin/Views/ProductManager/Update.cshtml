@@ -3,12 +3,10 @@
 @{
     ViewData["Title"] = "Edit Product";
 }
-
 <h2>Edit Product</h2>
 <form asp-action="Update" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
     <div class="form-group">
-
         <label asp-for="Name"></label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
@@ -21,7 +19,7 @@
     <div class="form-group">
         <label asp-for="Description"></label>
         <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="textdanger"></span>
+        <span asp-validation-for="Description" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="CategoryId">Category</label>
@@ -29,10 +27,26 @@
                 class="form-control"></select>
     </div>
     <div class="form-group">
-        <label asp-for="ImageUrl">Product Image</label>
+        <label asp-for="ImageUrl">Ảnh đại diện</label>
         <input type="file" asp-for="ImageUrl" class="form-control" />
-        <img src="@Model.ImageUrl" alt="Product Image" style="max-width:
-200px;" />
+        <img src="@Model.ImageUrl" alt="Product Image" style="max-width:200px; margin-top:10px;" />
     </div>
+    <div class="form-group">
+        <label>Ảnh chi tiết (có thể chọn nhiều)</label>
+        <input type="file" name="Images" class="form-control" multiple />
+    </div>
+    @if (Model.Images != null && Model.Images.Any())
+    {
+        <div class="mb-2">Ảnh chi tiết hiện có:</div>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            @foreach (var img in Model.Images)
+            {
+                <div style="position:relative; display:inline-block;">
+                    <img src="@img.Url" style="width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #ccc;" />
+                    <!-- Có thể thêm nút xóa ảnh chi tiết ở đây nếu muốn -->
+                </div>
+            }
+        </div>
+    }
     <button type="submit" class="btn btn-primary">Update</button>
 </form>

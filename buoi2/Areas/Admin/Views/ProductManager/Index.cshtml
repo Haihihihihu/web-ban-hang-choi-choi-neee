@@ -1,169 +1,131 @@
 ﻿@model IEnumerable<buoi2.Models.Product>
-
 @{
-
-    Layout = "/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Danh Sách Sản Phẩm";
     string currentSearch = ViewBag.SearchName as string ?? "";
     string currentSort = ViewBag.SortBy as string ?? "";
-    Layout = "~/Admin/Views/Shared/_Layout.cshtml";
-    
-
 }
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
 <style>
     body {
-        background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%); /* Giữ nguyên gradient trắng xám nhẹ */
+        background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
     }
 
-    /* Product List Header */
     .product-list-header {
-        font-size: 2.25rem; /* Slightly larger header */
+        font-size: 2.25rem;
         margin-bottom: 2.5rem;
-        color: #1e293b; /* Xám đậm hơn, dễ đọc */
+        color: #1e293b;
         font-weight: 700;
         letter-spacing: 0.5px;
         text-align: center;
-        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Shadow đậm hơn */
-        transition: opacity 0.3s ease; /* Smooth opacity transition */
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        transition: opacity 0.3s ease;
     }
 
         .product-list-header:hover {
-            opacity: 0.7; /* Fade effect on hover */
+            opacity: 0.7;
         }
 
-    /* Card Styling */
     .card {
-        border: 1px solid rgba(107, 114, 128, 0.5); /* Xám trung bình cho viền */
         border-radius: 1rem;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2); /* Shadow đậm hơn */
-        background: #ffffff; /* Trắng thuần */
+        box-shadow: 0 12px 30px rgba(0,0,0,0.12);
         margin: 0 auto 2.5rem;
-        max-width: 1400px; /* Increased width to prevent button wrap */
+        max-width: 1400px;
     }
 
-    /* Card Body */
     .card-body {
-        padding: 2.5rem; /* Increased padding */
+        padding: 2.5rem;
     }
 
-    /* Button Styling */
     .btn {
-        display: inline-block;
-        padding: 0.75rem 1.75rem; /* Slightly larger buttons */
+        padding: 0.5rem 1.5rem;
         border-radius: 8px;
-        text-decoration: none;
-        font-size: 1rem;
-        font-weight: 700; /* Tăng đậm cho chữ nút */
-        transition: all 0.3s ease;
-        border: 1px solid transparent;
-        white-space: nowrap; /* Prevent text wrap */
+        font-weight: 700;
+        transition: all 0.3s;
     }
 
     .btn-primary {
-        background: linear-gradient(90deg, #4b5563, #1e293b); /* Gradient xám đậm */
-        color: #ffffff;
-        border: 1px solid rgba(30, 41, 59, 0.7); /* Viền đậm hơn */
+        background: linear-gradient(90deg, #4b5563, #1e293b);
+        color: #fff;
+        border: none;
     }
 
         .btn-primary:hover {
-            background: linear-gradient(90deg, #1e293b, #111827); /* Gradient xám rất đậm */
-            box-shadow: 0 0 15px rgba(30, 41, 59, 0.6); /* Shadow đậm hơn */
-            transform: translateY(-2px);
+            background: linear-gradient(90deg, #1e293b, #111827);
         }
 
     .btn-outline-info {
-        border: 1px solid #3b82f6; /* Xanh dương đậm */
+        border: 1px solid #3b82f6;
         color: #3b82f6;
     }
 
         .btn-outline-info:hover {
-            background-color: #3b82f6;
-            color: #ffffff;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+            background: #3b82f6;
+            color: #fff;
         }
 
     .btn-outline-warning {
-        border: 1px solid #f59e0b; /* Vàng cam đậm */
+        border: 1px solid #f59e0b;
         color: #f59e0b;
     }
 
         .btn-outline-warning:hover {
-            background-color: #f59e0b;
-            color: #ffffff;
-            box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+            background: #f59e0b;
+            color: #fff;
         }
 
     .btn-outline-danger {
-        border: 1px solid #dc2626; /* Đỏ đậm */
+        border: 1px solid #dc2626;
         color: #dc2626;
     }
 
         .btn-outline-danger:hover {
-            background-color: #dc2626;
-            color: #ffffff;
-            box-shadow: 0 0 12px rgba(220, 38, 38, 0.5);
+            background: #dc2626;
+            color: #fff;
         }
 
-    /* Table Container */
     .table-container {
         overflow-x: auto;
     }
 
-    /* Product Table */
     .product-table {
         width: 100%;
         border-collapse: collapse;
         font-size: 1rem;
-        color: #1e293b; /* Xám đậm hơn cho chữ */
+        color: #1e293b;
     }
 
-        .product-table th,
-        .product-table td {
-            padding: 1rem 1rem; /* Reduced padding to fit more content */
+        .product-table th, .product-table td {
+            padding: 1rem;
             text-align: left;
-            vertical-align: middle;
-            border: 1px solid rgba(107, 114, 128, 0.3); /* Xám trung bình với transparency */
+            border: 1px solid #e5e7eb;
         }
 
         .product-table th {
-            background: linear-gradient(90deg, #6b7280, #4b5563); /* Gradient xám đậm */
-            color: #ffffff; /* Trắng cho header */
-            font-weight: 700; /* Tăng đậm */
-            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #6b7280, #4b5563);
+            color: #fff;
+            font-weight: 700;
         }
 
         .product-table tr {
-            background-color: #ffffff; /* Trắng thuần */
-            transition: background-color 0.3s ease;
+            background-color: #fff;
+            transition: background 0.3s;
         }
 
             .product-table tr:hover {
-                background-color: #f3f4f6; /* Xám nhạt hơn khi hover */
+                background: #f3f4f6;
             }
 
-        .product-table .text-center {
-            text-align: center;
-            color: #6b7280; /* Xám trung bình cho trạng thái trống */
-        }
-
-    /* Product Image */
     .product-image {
-        max-width: 120px;
-        max-height: 120px;
+        max-width: 100px;
+        max-height: 100px;
         object-fit: cover;
         border-radius: 8px;
-        border: 1px solid rgba(107, 114, 128, 0.5); /* Xám trung bình cho viền */
-        transition: transform 0.3s ease;
+        border: 1px solid #e5e7eb;
     }
 
-        .product-image:hover {
-            transform: scale(1.05); /* Slight zoom on hover */
-        }
-
-    /* Text Muted */
     .text-muted {
-        color: #6b7280; /* Xám trung bình */
+        color: #6b7280;
     }
 </style>
 
@@ -171,25 +133,24 @@
 
 <div class="card">
     <div class="card-body">
-        <a href="@Url.Action("Add")" class="btn btn-primary">Add New Product</a>
-        <br />
+        <a href="@Url.Action("Add")" class="btn btn-primary mb-3">Thêm sản phẩm mới</a>
         <div class="table-container">
             <table class="product-table" aria-label="Product list">
                 <thead>
                     <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Category</th>
-                        <th scope="col">Image</th>
-                        <th scope="col">Actions</th>
+                        <th>Tên</th>
+                        <th>Giá</th>
+                        <th>Mô tả</th>
+                        <th>Danh mục</th>
+                        <th>Hình ảnh</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="6" class="text-center text-muted">No products available.</td>
+                            <td colspan="6" class="text-center text-muted">Không có sản phẩm nào.</td>
                         </tr>
                     }
                     else
@@ -198,31 +159,37 @@
                         {
                             <tr>
                                 <td>@product.Name</td>
-                        @using System.Globalization
-
-                                <td>@product.Price.ToString("C", new CultureInfo("vi-VN"))</td>
+                                <td>@product.Price.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))</td>
                                 <td>@(string.IsNullOrEmpty(product.Description) ? "N/A" : product.Description)</td>
                                 <td>@(product.Category?.Name ?? "N/A")</td>
                                 <td>
-                                    @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                    @{
+                                        string adminProductImageUrl = "";
+                                        if (product.Images != null && product.Images.Any() && !string.IsNullOrEmpty(product.Images.First().Url))
+                                        {
+                                            adminProductImageUrl = product.Images.First().Url;
+                                        }
+                                        else if (!string.IsNullOrEmpty(product.ImageUrl))
+                                        {
+                                            adminProductImageUrl = product.ImageUrl;
+                                        }
+                                    }
+                                    @if (!string.IsNullOrEmpty(adminProductImageUrl))
                                     {
-                                        <img src="@product.ImageUrl" alt="@product.Name" class="product-image" />
+                                        <img src="@adminProductImageUrl" alt="@product.Name" class="product-image" />
                                     }
                                     else
                                     {
-                                        <span class="text-muted">No image</span>
+                                        <span class="text-muted">Không có ảnh</span>
                                     }
                                 </td>
                                 <td>
-                                    <a href="@Url.Action("Display", new { id = product.Id })" class="btn btn-outline-info">View</a>
-                                    <a href="@Url.Action("Update", new { id = product.Id })" class="btn btn-outline-warning">Edit</a>
-                                    <a href="@Url.Action("Delete", new { id = product.Id })" class="btn btn-outline-danger">Delete</a>
+                                    <a href="@Url.Action("Display", new { id = product.Id })" class="btn btn-outline-info btn-sm">Xem</a>
+                                    <a href="@Url.Action("Update", new { id = product.Id })" class="btn btn-outline-warning btn-sm">Sửa</a>
+                                    <a href="@Url.Action("Delete", new { id = product.Id })" class="btn btn-outline-danger btn-sm"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
                                 </td>
                             </tr>
-
-                            <a asp-area="Admin" asp-action="Update" asp-route-id="@product.Id" class="btn btn-sm btn-outline-success custom-btn">Edit</a>
-                            <a asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-outline-danger custom-btn"
-                               onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
                         }
                     }
                 </tbody>

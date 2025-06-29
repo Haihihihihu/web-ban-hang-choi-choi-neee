@@ -1,69 +1,76 @@
-﻿@model List<buoi2.Models.Order>
-@using buoi2.Models
+﻿@model IEnumerable<buoi2.Models.Order>
 
-<h2>Lịch sử đơn hàng</h2>
+<style>
+    .cart-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        background-color: #ffffff;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
-}
-else
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Mã đơn hàng</th>
-                <th>Ngày đặt</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in Model)
-            {
-                <tr>
-                    <td>#@order.Id</td>
-                    <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@order.TotalPrice.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</td>
-                    <td>
-                        @switch (order.Status)
-                        {
-                            case buoi2.Models.Order.OrderStatus.Pending:
-                                <span class="badge bg-secondary">Chờ xác nhận</span>
-                                break;
-                            case buoi2.Models.Order.OrderStatus.Preparing:
-                                <span class="badge bg-warning">Đang chuẩn bị hàng</span>
-                                break;
-                            case buoi2.Models.Order.OrderStatus.Shipping:
-                                <span class="badge bg-primary">Đang giao hàng</span>
-                                break;
-                            case buoi2.Models.Order.OrderStatus.Delivered:
-                                <span class="badge bg-success">Đã giao hàng</span>
-                                break;
-                            case buoi2.Models.Order.OrderStatus.Cancelled:
-                                <span class="badge bg-danger">Đã hủy</span>
-                                break;
-                        }
-                    </td>
-                    <td>
-                        <a asp-action="OrderCompleted" asp-route-id="@order.Id" class="btn btn-primary btn-sm">Xem chi tiết</a>
-                        @if (order.Status == buoi2.Models.Order.OrderStatus.Pending || order.Status == buoi2.Models.Order.OrderStatus.Preparing)
-                        {
-                            using (Html.BeginForm("CancelOrder", "ShoppingCart", FormMethod.Post, new { style = "display:inline;" }))
-                            {
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@order.Id" />
-                                <button type="submit" class="btn btn-danger btn-sm ml-2">Hủy đơn</button>
-                            }
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    .cart-header {
+        text-align: center;
+        margin-bottom: 50px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e8e8e8;
+    }
 
-<div class="text-center mt-3">
-    <a asp-controller="Product" asp-action="Index" class="btn btn-primary">Tiếp tục mua sắm</a>
+    .cart-title {
+        font-size: 2.2rem;
+        font-weight: 300;
+        color: #333;
+        margin: 0;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+</style>
+
+<div class="cart-header">
+    <h2 class="cart-title, ">LỊCH SỬ MUA HÀNG</h2>
 </div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Mã đơn hàng</th>
+            <th>Ngày đặt</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>#@order.Id</td>
+                <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@order.TotalPrice.ToString("N0")</td>
+                <td>
+                    @{
+                        string labelClass = order.Status switch
+                        {
+                            buoi2.Models.Order.OrderStatus.Pending => "badge bg-secondary",
+                            buoi2.Models.Order.OrderStatus.Preparing => "badge bg-warning text-dark",
+                            buoi2.Models.Order.OrderStatus.Shipping => "badge bg-info text-dark",
+                            buoi2.Models.Order.OrderStatus.Delivered => "badge bg-success",
+                            buoi2.Models.Order.OrderStatus.Cancelled => "badge bg-danger",
+                            _ => "badge bg-light"
+                        };
+                    }
+                    <span class="@labelClass">@order.Status.ToString()</span>
+                </td>
+                <td>
+                    <a href="/ShoppingCart/OrderCompleted/@order.Id" class="btn btn-sm btn-primary">Xem chi tiết</a>
+                    @if (order.Status == buoi2.Models.Order.OrderStatus.Pending)
+                    {
+                        <form asp-action="CancelOrder" asp-route-id="@order.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger">Hủy đơn</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
