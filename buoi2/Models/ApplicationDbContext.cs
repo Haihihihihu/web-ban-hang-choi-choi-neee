@@ -16,5 +16,7 @@ namespace buoi2.Models
 
         public DbSet<OrderDetail> OrderDetails { get; set; }
 
+        public DbSet<Voucher> Vouchers { get; set; }
+
     }
 }

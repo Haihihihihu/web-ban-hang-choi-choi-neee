@@ -3,7 +3,7 @@ using buoi2.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
-
+using buoi2.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,7 +52,11 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(opt =>
 });
 
 var app = builder.Build();
-
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    DbInitializer.Initialize(services);
+}
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

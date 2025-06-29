@@ -30,44 +30,185 @@ namespace buoi2.Controllers
             _logger = logger;
         }
 
-        public IActionResult Checkout()
+        [HttpGet]
+        public async Task<IActionResult> Checkout()
         {
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
-            ViewBag.Cart = cart; // Truyền giỏ hàng vào ViewBag
+            var user = await _userManager.GetUserAsync(User);
+
+            // Kiểm tra user không null
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            bool isNewUser = !_context.Orders.Any(o => o.UserId == user.Id);
+            decimal cartTotal = cart.GetTotal();
+
+            // Lấy TẤT CẢ voucher đang hoạt động, không lọc theo điều kiện
+            var allVouchers = await _context.Vouchers
+                .Where(v => v.IsActive && v.ExpiryDate >= DateTime.Now && v.UsageCount < v.MaxUsageCount)
+                .OrderByDescending(v => v.DiscountAmount ?? 0)
+                .ThenByDescending(v => v.DiscountPercent ?? 0)
+                .ToListAsync();
+
+            // Phân loại voucher
+            var applicableVouchers = new List<dynamic>();
+            var notApplicableVouchers = new List<dynamic>();
+
+            foreach (var voucher in allVouchers)
+            {
+                bool canUse = true;
+                string reason = "";
+
+                // Kiểm tra điều kiện đơn hàng tối thiểu
+                if (voucher.MinOrderAmount.HasValue && cartTotal < voucher.MinOrderAmount.Value)
+                {
+                    canUse = false;
+                    reason = $"Cần đặt tối thiểu {voucher.MinOrderAmount.Value:N0} ₫";
+                }
+
+                // Kiểm tra voucher dành cho khách hàng mới
+                if (voucher.IsForNewUser && !isNewUser)
+                {
+                    canUse = false;
+                    reason = "Chỉ dành cho khách hàng mới";
+                }
+
+                var voucherInfo = new
+                {
+                    voucher.Id,
+                    voucher.Code,
+                    voucher.DiscountAmount,
+                    voucher.DiscountPercent,
+                    voucher.MinOrderAmount,
+                    voucher.IsForNewUser,
+                    voucher.ExpiryDate,
+                    CanUse = canUse,
+                    Reason = reason,
+                    UsageRemaining = voucher.MaxUsageCount - voucher.UsageCount
+                };
+
+                if (canUse)
+                    applicableVouchers.Add(voucherInfo);
+                else
+                    notApplicableVouchers.Add(voucherInfo);
+            }
+
+            ViewBag.ApplicableVouchers = applicableVouchers;
+            ViewBag.NotApplicableVouchers = notApplicableVouchers;
+            ViewBag.Cart = cart;
+            ViewBag.IsNewUser = isNewUser;
             return View(new Order());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Checkout(Order order)
+        public async Task<IActionResult> Checkout(Order order, string VoucherCode)
         {
             var user = await _userManager.GetUserAsync(User);
+
+            // Kiểm tra user không null
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
 
             if (!cart.Items.Any())
             {
                 ModelState.AddModelError("", "Giỏ hàng trống.");
                 ViewBag.Cart = cart;
+
+                // Cần load lại availableVouchers khi return view
+                bool isNewUser = !_context.Orders.Any(o => o.UserId == user.Id);
+                decimal cartTotal = cart.GetTotal();
+                var availableVouchers = await _context.Vouchers
+                    .Where(v => v.IsActive
+                        && v.ExpiryDate >= DateTime.Now
+                        && v.UsageCount < v.MaxUsageCount
+                        && (!v.MinOrderAmount.HasValue || cartTotal >= v.MinOrderAmount.Value)
+                        && (!v.IsForNewUser || isNewUser))
+                    .ToListAsync();
+                ViewBag.AvailableVouchers = availableVouchers;
+
                 return View(order);
             }
 
-            // Kiểm tra tồn kho
-            foreach (var item in cart.Items)
+            decimal totalPrice = cart.GetTotal();
+            if (!string.IsNullOrEmpty(VoucherCode))
             {
-                var product = await _productRepository.GetByIdAsync(item.ProductId);
-                if (product == null || product.Stock < item.Quantity)
+                var voucher = await _context.Vouchers.FirstOrDefaultAsync(v => v.Code == VoucherCode && v.IsActive);
+                if (voucher != null)
                 {
-                    ModelState.AddModelError("", $"Sản phẩm {item.Name} không đủ số lượng tồn kho.");
-                    ViewBag.Cart = cart;
-                    return View(order);
+                    // Kiểm tra điều kiện voucher trước khi áp dụng
+                    bool canUseVoucher = true;
+
+                    // Kiểm tra ngày hết hạn
+                    if (voucher.ExpiryDate < DateTime.Now)
+                        canUseVoucher = false;
+
+                    // Kiểm tra số lần sử dụng
+                    if (voucher.UsageCount >= voucher.MaxUsageCount)
+                        canUseVoucher = false;
+
+                    // Kiểm tra đơn hàng tối thiểu
+                    if (voucher.MinOrderAmount.HasValue && totalPrice < voucher.MinOrderAmount.Value)
+                        canUseVoucher = false;
+
+                    // Kiểm tra voucher dành cho khách hàng mới
+                    if (voucher.IsForNewUser)
+                    {
+                        bool isNewUser = !_context.Orders.Any(o => o.UserId == user.Id);
+                        if (!isNewUser)
+                            canUseVoucher = false;
+                    }
+
+                    if (canUseVoucher)
+                    {
+                        if (voucher.DiscountAmount.HasValue && voucher.DiscountAmount.Value > 0)
+                        {
+                            totalPrice -= voucher.DiscountAmount.Value;
+                        }
+                        else if (voucher.DiscountPercent.HasValue && voucher.DiscountPercent.Value > 0)
+                        {
+                            totalPrice *= 1 - (voucher.DiscountPercent.Value / 100m);
+                        }
+
+                        voucher.UsageCount++;
+                        _context.Vouchers.Update(voucher);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Voucher không hợp lệ hoặc không đủ điều kiện sử dụng.");
+
+                        // Load lại data cho view
+                        bool isNewUser = !_context.Orders.Any(o => o.UserId == user.Id);
+                        decimal cartTotal = cart.GetTotal();
+                        var availableVouchers = await _context.Vouchers
+                            .Where(v => v.IsActive
+                                && v.ExpiryDate >= DateTime.Now
+                                && v.UsageCount < v.MaxUsageCount
+                                && (!v.MinOrderAmount.HasValue || cartTotal >= v.MinOrderAmount.Value)
+                                && (!v.IsForNewUser || isNewUser))
+                            .ToListAsync();
+                        ViewBag.AvailableVouchers = availableVouchers;
+                        ViewBag.Cart = cart;
+
+                        return View(order);
+                    }
                 }
             }
 
+            // Đảm bảo totalPrice không âm
+            totalPrice = Math.Max(0, totalPrice);
+
             order.UserId = user.Id;
             order.OrderDate = DateTime.UtcNow;
-            order.TotalPrice = cart.GetTotal();
-            order.Status = OrderStatus.Pending;
-
+            order.TotalPrice = totalPrice;
+            order.VoucherCode = VoucherCode;
+            order.Status = Order.OrderStatus.Pending;
             order.OrderDetails = cart.Items.Select(item => new OrderDetail
             {
                 ProductId = item.ProductId,
@@ -78,7 +219,6 @@ namespace buoi2.Controllers
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            // ✅ Trừ kho ngay sau khi lưu Order
             foreach (var detail in order.OrderDetails)
             {
                 var product = await _productRepository.GetByIdAsync(detail.ProductId);
@@ -89,8 +229,8 @@ namespace buoi2.Controllers
                 }
             }
 
-            // Xóa giỏ hàng
             HttpContext.Session.Remove("Cart");
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("OrderCompleted", new { id = order.Id });
         }
@@ -108,7 +248,7 @@ namespace buoi2.Controllers
             }
 
             var user = await _userManager.GetUserAsync(User);
-            if (order.UserId != user.Id)
+            if (user == null || order.UserId != user.Id)
             {
                 return Forbid();
             }
@@ -136,6 +276,7 @@ namespace buoi2.Controllers
             HttpContext.Session.SetObjectAsJson("Cart", cart);
             return View(cart);
         }
+
         public async Task<IActionResult> AddToCart(int productId, int quantity)
         {
             var product = await GetProductFromDatabase(productId);
@@ -156,7 +297,6 @@ namespace buoi2.Controllers
             return RedirectToAction("Index");
         }
 
-        // ✅ Method này phải tách riêng, không được lồng bên trên
         public IActionResult OrderHistory()
         {
             var userId = _userManager.GetUserId(User);
@@ -170,8 +310,6 @@ namespace buoi2.Controllers
             return View(orders);
         }
 
-
-
         public IActionResult RemoveFromCart(int productId)
         {
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
@@ -182,57 +320,56 @@ namespace buoi2.Controllers
             }
             return RedirectToAction("Index");
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateQuantity([FromBody] UpdateQuantityRequest request)
+        {
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
+            var product = await _productRepository.GetByIdAsync(request.ProductId);
+            var cartItem = cart.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
+
+            if (product != null && cartItem != null)
             {
-                var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
-                var product = await _productRepository.GetByIdAsync(request.ProductId);
-                var cartItem = cart.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
+                cartItem.Stock = product.Stock;
+                var qty = request.Quantity;
 
-                if (product != null && cartItem != null)
+                if (qty <= 0)
                 {
-                    cartItem.Stock = product.Stock;
-                    var qty = request.Quantity;
-
-                    // ✅ Validation nghiêm ngặt - không cho phép vượt quá tồn kho
-                    if (qty <= 0)
-                    {
-                        return Json(new
-                        {
-                            success = false,
-                            message = "Số lượng phải lớn hơn 0"
-                        });
-                    }
-
-                    if (qty > product.Stock)
-                    {
-                        return Json(new
-                        {
-                            success = false,
-                            message = $"Số lượng không được vượt quá tồn kho ({product.Stock})"
-                        });
-                    }
-
-                    cart.UpdateQuantity(request.ProductId, qty);
-                    HttpContext.Session.SetObjectAsJson("Cart", cart);
-
                     return Json(new
                     {
-                        success = true,
-                        subtotal = cartItem.SubTotal,
-                        total = cart.GetTotal(),
-                        actualQuantity = qty
+                        success = false,
+                        message = "Số lượng phải lớn hơn 0"
                     });
                 }
 
+                if (qty > product.Stock)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = $"Số lượng không được vượt quá tồn kho ({product.Stock})"
+                    });
+                }
+
+                cart.UpdateQuantity(request.ProductId, qty);
+                HttpContext.Session.SetObjectAsJson("Cart", cart);
+
                 return Json(new
                 {
-                    success = false,
-                    message = "Sản phẩm không tồn tại"
+                    success = true,
+                    subtotal = cartItem.SubTotal,
+                    total = cart.GetTotal(),
+                    actualQuantity = qty
                 });
+            }
+
+            return Json(new
+            {
+                success = false,
+                message = "Sản phẩm không tồn tại"
+            });
         }
-          
 
         public class UpdateQuantityRequest
         {
@@ -259,7 +396,7 @@ namespace buoi2.Controllers
             }
 
             var user = await _userManager.GetUserAsync(User);
-            if (order.UserId != user.Id)
+            if (user == null || order.UserId != user.Id)
             {
                 return Forbid();
             }
@@ -270,13 +407,12 @@ namespace buoi2.Controllers
                 return RedirectToAction("OrderHistory");
             }
 
-            // Trả lại số lượng tồn kho nếu đã trừ (trong trường hợp admin đã xác nhận và trừ kho)
             foreach (var detail in order.OrderDetails)
             {
                 var product = await _productRepository.GetByIdAsync(detail.ProductId);
                 if (product != null)
                 {
-                    product.Stock += detail.Quantity; // Trả lại kho nếu đã trừ
+                    product.Stock += detail.Quantity;
                     await _productRepository.UpdateAsync(product);
                 }
             }
@@ -286,6 +422,5 @@ namespace buoi2.Controllers
 
             return RedirectToAction("OrderHistory");
         }
-      
     }
 }
