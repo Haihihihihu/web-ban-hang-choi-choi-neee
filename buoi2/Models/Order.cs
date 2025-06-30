@@ -23,6 +23,11 @@ namespace buoi2.Models
         public string ShippingAddress { get; set; } 
         public OrderStatus Status { get; set; }
         public string Notes { get; set; }
+
+        public string? VoucherCode { get; set; }
+        public decimal DiscountAmount { get; set; }
+        public decimal FinalTotal => TotalPrice - DiscountAmount;
+
         [ForeignKey("UserId")]
         [ValidateNever]
         public ApplicationUser ApplicationUser { get; set; }

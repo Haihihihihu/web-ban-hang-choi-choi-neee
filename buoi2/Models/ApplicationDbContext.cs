@@ -22,6 +22,9 @@ namespace buoi2.Models
 
         public DbSet<ProductReview> ProductReviews { get; set; }
 
+        public DbSet<Voucher> Vouchers { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

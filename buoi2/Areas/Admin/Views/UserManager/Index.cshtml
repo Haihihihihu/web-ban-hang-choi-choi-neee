@@ -1,43 +1,417 @@
-﻿@model IEnumerable<buoi2.Models.ApplicationUser>
-
-@{
+﻿@{
     ViewData["Title"] = "User Manager";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1 class="mb-4">User Manager</h1>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">
+                        <i class="fas fa-users"></i> User Manager
+                    </h3>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                        <i class="fas fa-plus"></i> Add New User
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- User Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="info-box bg-success">
+                                <span class="info-box-icon"><i class="fas fa-users"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Total Users</span>
+                                    <span class="info-box-number" id="totalUsers">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-<!-- Hiển thị thông báo thành công/thất bại -->
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
+                    <!-- Search Box -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search users by email...">
+                                <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                                <button class="btn btn-outline-info" type="button" id="refreshBtn">
+                                    <i class="fas fa-sync"></i> Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="usersTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="2" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        Loading users...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create User Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createUserForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="createEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="createEmail" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="createPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="createPassword" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Roles</label>
+                        <div id="createRolesList">
+                            <!-- Roles will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editUserForm">
+                <div class="modal-body">
+                    <input type="hidden" id="editUserId" name="id">
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Roles</label>
+                        <div id="editRolesList">
+                            <!-- Roles will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this user?</p>
+                <p><strong>Email:</strong> <span id="deleteUserEmail"></span></p>
+                <p class="text-danger"><strong>This action cannot be undone!</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete User</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let currentUsers = [];
+            let allRoles = [];
+
+            loadUsers();
+            loadUserCount();
+            loadRoles();
+
+            function loadUsers() {
+                $.ajax({
+                    url: '@Url.Action("Index", "UserManager")',
+                    type: 'GET',
+                    data: { ajax: true },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            currentUsers = response.data;
+                            displayUsers(currentUsers);
+                        } else {
+                            showAlert('Error loading users: ' + response.message, 'danger');
+                            $('#usersTableBody').html('<tr><td colspan="2" class="text-center text-danger">Error loading users</td></tr>');
+                        }
+                    },
+                    error: function () {
+                        showAlert('Error loading users.', 'danger');
+                        $('#usersTableBody').html('<tr><td colspan="2" class="text-center text-danger">Error loading users</td></tr>');
+                    }
+                });
+            }
+
+            function displayUsers(users) {
+                let html = '';
+                if (users.length === 0) {
+                    html = '<tr><td colspan="2" class="text-center">No users found</td></tr>';
+                } else {
+                    users.forEach(function (user) {
+                        html += `
+                                            <tr>
+                                                <td>${user.email || 'N/A'}</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info me-1" onclick="editUser('${user.id}')">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}', '${user.email}')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `;
+                    });
+                }
+                $('#usersTableBody').html(html);
+            }
+
+            function loadUserCount() {
+                $.get('@Url.Action("GetUserCount", "UserManager")', function (response) {
+                    if (response.success) {
+                        $('#totalUsers').text(response.count);
+                    }
+                });
+            }
+
+            function loadRoles() {
+                $.get('@Url.Action("GetRoles", "UserManager")', function (response) {
+                    if (response.success) {
+                        allRoles = response.data;
+                        displayRoles();
+                    }
+                });
+            }
+
+            function displayRoles() {
+                let html = '';
+                allRoles.forEach(function (role) {
+                    html += `
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="${role}" id="role_${role}">
+                                            <label class="form-check-label" for="role_${role}">
+                                                ${role}
+                                            </label>
+                                        </div>
+                                    `;
+                });
+                $('#createRolesList').html(html);
+            }
+
+            $('#searchBtn, #searchInput').on('click keypress', function (e) {
+                if (e.type === 'click' || e.which === 13) {
+                    e.preventDefault();
+                    let searchTerm = $('#searchInput').val().trim();
+
+                    if (searchTerm) {
+                        $.get('@Url.Action("SearchUsers", "UserManager")', { searchTerm: searchTerm })
+                            .done(function (response) {
+                                if (response.success) {
+                                    displayUsers(response.data);
+                                } else {
+                                    showAlert('Search failed: ' + response.message, 'danger');
+                                }
+                            });
+                    } else {
+                        displayUsers(currentUsers);
+                    }
+                }
+            });
+
+            $('#refreshBtn').click(function () {
+                $('#searchInput').val('');
+                loadUsers();
+                loadUserCount();
+            });
+
+            $('#createUserForm').submit(function (e) {
+                e.preventDefault();
+                let formData = {
+                    email: $('#createEmail').val(),
+                    password: $('#createPassword').val(),
+                    selectedRoles: []
+                };
+                $('#createRolesList input:checked').each(function () {
+                    formData.selectedRoles.push($(this).val());
+                });
+
+                $.ajax({
+                    url: '@Url.Action("CreateUser", "UserManager")',
+                    type: 'POST',
+                    data: formData,
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            showAlert(response.message, 'success');
+                            $('#createUserModal').modal('hide');
+                            $('#createUserForm')[0].reset();
+                            loadUsers();
+                            loadUserCount();
+                        } else {
+                            showAlert('Error: ' + response.message, 'danger');
+                        }
+                    },
+                    error: function () {
+                        showAlert('Error creating user', 'danger');
+                    }
+                });
+            });
+
+            window.editUser = function (userId) {
+                $.get('@Url.Action("GetUser", "UserManager")', { id: userId })
+                    .done(function (response) {
+                        if (response.success) {
+                            $('#editUserId').val(userId);
+                            $('#editEmail').val(response.user.email);
+
+                            let html = '';
+                            allRoles.forEach(function (role) {
+                                let checked = response.userRoles.includes(role) ? 'checked' : '';
+                                html += `
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" value="${role}"
+                                                               id="edit_role_${role}" ${checked}>
+                                                        <label class="form-check-label" for="edit_role_${role}">
+                                                            ${role}
+                                                        </label>
+                                                    </div>
+                                                `;
+                            });
+                            $('#editRolesList').html(html);
+
+                            $('#editUserModal').modal('show');
+                        } else {
+                            showAlert('Error loading user: ' + response.message, 'danger');
+                        }
+                    });
+            };
+
+            window.deleteUser = function (userId, userEmail) {
+                $('#deleteUserEmail').text(userEmail);
+                $('#deleteUserModal').modal('show');
+
+                $('#confirmDeleteBtn').off('click').on('click', function () {
+                    $.ajax({
+                        url: '@Url.Action("DeleteUser", "UserManager")',
+                        type: 'POST',
+                        data: { id: userId },
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showAlert(response.message, 'success');
+                                $('#deleteUserModal').modal('hide');
+                                loadUsers();
+                                loadUserCount();
+                            } else {
+                                showAlert('Error: ' + response.message, 'danger');
+                            }
+                        },
+                        error: function () {
+                            showAlert('Error deleting user', 'danger');
+                        }
+                    });
+                });
+            };
+
+            $('#editUserForm').submit(function (e) {
+                e.preventDefault();
+                let formData = {
+                    id: $('#editUserId').val(),
+                    email: $('#editEmail').val(),
+                    selectedRoles: []
+                };
+                $('#editRolesList input:checked').each(function () {
+                    formData.selectedRoles.push($(this).val());
+                });
+
+                $.ajax({
+                    url: '@Url.Action("UpdateUser", "UserManager")',
+                    type: 'POST',
+                    data: formData,
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            showAlert(response.message, 'success');
+                            $('#editUserModal').modal('hide');
+                            loadUsers();
+                        } else {
+                            showAlert('Error: ' + response.message, 'danger');
+                        }
+                    },
+                    error: function () {
+                        showAlert('Error updating user', 'danger');
+                    }
+                });
+            });
+
+            function showAlert(message, type) {
+                let alertHtml = `
+                                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                                        ${message}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                `;
+                $('.alert').remove();
+                $('.container-fluid').prepend(alertHtml);
+                setTimeout(function () {
+                    $('.alert').fadeOut();
+                }, 5000);
+            }
+        });
+    </script>
 }
 
-<table class="table table-striped table-bordered">
-    <thead class="thead-dark">
-        <tr>
-            <th>Email</th>
-            <th>Full Name</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.Email</td>
-                <td>@user.FullName</td>
-                <td>
-                    <form asp-action="DeleteUser" method="post" asp-route-id="@user.Id" onsubmit="return confirm('Are you sure you want to delete @user.FullName?');">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-    
+@Html.AntiForgeryToken()

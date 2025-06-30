@@ -88,6 +88,16 @@
                                             </tr>
                                         }
                                     </tbody>
+                                    @{
+                                        var subtotal = Model.OrderDetails.Sum(x => x.Price * x.Quantity);
+                                    }
+                                    @if (subtotal > Model.TotalPrice)
+                                    {
+                                        <tr class="table-warning">
+                                            <th colspan="3" class="text-end"><strong>Voucher giảm:</strong></th>
+                                            <th class="text-danger">- @((subtotal - Model.TotalPrice).ToString("N0", new System.Globalization.CultureInfo("vi-VN"))) ₫</th>
+                                        </tr>
+                                    }
                                     <tfoot>
                                         <tr class="table-info">
                                             <th colspan="3">Tổng tiền:</th>

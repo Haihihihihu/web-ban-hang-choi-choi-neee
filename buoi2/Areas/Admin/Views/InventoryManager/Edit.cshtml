@@ -1,0 +1,65 @@
+﻿@model buoi2.Models.Product
+@{
+    ViewData["Title"] = "Cập nhật tồn kho";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0"><i class="fas fa-edit me-2"></i>@ViewData["Title"]</h3>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Edit", "InventoryManager", new { area = "Admin" }, FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+                        @Html.HiddenFor(m => m.Name)
+                        @Html.HiddenFor(m => m.Price)
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Mã sản phẩm:</strong></label>
+                            <span class="badge bg-secondary">#@Model.Id</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Tên sản phẩm:</strong></label>
+                            <span class="fw-bold">@Model.Name</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Giá bán:</strong></label>
+                            <span class="text-primary">@Model.Price.ToString("N0") ₫</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số lượng tồn kho</label>
+                            <div class="input-group input-group-lg">
+                                @Html.TextBoxFor(m => m.Stock, new { @class = "form-control border-2 border-warning fs-5", type = "number", min = "0", style = "max-width:200px;" })
+                                <span class="input-group-text">sản phẩm</span>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.Stock, "", new { @class = "text-danger" })
+                            <div class="form-text">Nhập số lượng sản phẩm hiện có trong kho (Hiện tại: <b>@Model.Stock</b>)</div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-4">
+                            @Html.ActionLink("Quay lại", "Index", "InventoryManager", new { area = "Admin" }, new { @class = "btn btn-secondary" })
+                            <button type="submit" class="btn btn-warning btn-lg px-4">
+                                <i class="fas fa-save me-2"></i>Lưu thay đổi
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $('#Stock').focus().select();
+            setTimeout(function () {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+        });
+    </script>
+}

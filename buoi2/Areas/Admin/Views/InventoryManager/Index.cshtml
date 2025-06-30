@@ -1,0 +1,105 @@
+﻿@model IEnumerable<buoi2.Models.Product>
+@{
+    ViewData["Title"] = "Quản lý kho";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-info text-white d-flex align-items-center justify-content-between rounded-top-4">
+                    <h3 class="mb-0"><i class="fas fa-warehouse me-2"></i>@ViewData["Title"]</h3>
+                    <form class="d-flex" id="searchForm" onsubmit="return false;">
+                        <input class="form-control me-2 rounded-pill" type="search" placeholder="Tìm sản phẩm..." aria-label="Search" id="searchInput">
+                        <button class="btn btn-light rounded-pill" type="button" onclick="filterTable()"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                <div class="card-body bg-light rounded-bottom-4">
+                    @if (TempData["Message"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>@TempData["Message"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle bg-white rounded-4 overflow-hidden" id="inventoryTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">Mã SP</th>
+                                    <th scope="col">Tên sản phẩm</th>
+                                    <th scope="col">Giá bán</th>
+                                    <th scope="col">Tồn kho</th>
+                                    <th scope="col" class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Any())
+                                {
+                                    @foreach (var product in Model)
+                                    {
+                                        <tr>
+                                            <td><span class="badge bg-secondary fs-6">#@product.Id</span></td>
+                                            <td class="fw-bold">@product.Name</td>
+                                            <td class="text-primary">@product.Price.ToString("N0") <span class="text-muted">₫</span></td>
+                                            <td>
+                                                <span class="badge @(product.Stock <= 10 ? "bg-danger" : product.Stock <= 50 ? "bg-warning text-dark" : "bg-success") fs-5 px-4 py-2 shadow">
+                                                    @product.Stock
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="@Url.Action("Edit", "InventoryManager", new { area = "Admin", id = product.Id })"
+                                                   class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">
+                                                    <i class="fas fa-edit"></i> Cập nhật kho
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">
+                                            <i class="fas fa-box-open fa-2x mb-2"></i><br />
+                                            Không có sản phẩm nào để hiển thị
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        // Tìm kiếm sản phẩm theo tên
+        function filterTable() {
+            var input = document.getElementById('searchInput');
+            var filter = input.value.toLowerCase();
+            var table = document.getElementById('inventoryTable');
+            var trs = table.getElementsByTagName('tr');
+            for (var i = 1; i < trs.length; i++) {
+                var tds = trs[i].getElementsByTagName('td');
+                if (tds.length > 1) {
+                    var name = tds[1].textContent || tds[1].innerText;
+                    trs[i].style.display = name.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
+                }
+            }
+        }
+        document.getElementById('searchInput').addEventListener('keyup', filterTable);
+        window.onpageshow = function (event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        };
+        setTimeout(function () {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+}

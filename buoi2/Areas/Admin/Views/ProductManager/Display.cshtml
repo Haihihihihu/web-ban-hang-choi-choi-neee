@@ -81,80 +81,12 @@
                     <h5>Mô tả sản phẩm:</h5>
                     <p>@Model.Description</p>
                 </div>
-
-                <!-- Đánh giá sản phẩm -->
-                <div class="mt-5">
-                    <h4 class="mb-3">Đánh giá sản phẩm</h4>
-                    @if (ViewBag.AverageRating > 0)
-                    {
-                        <p class="text-warning mb-2" style="font-size:1.1rem;">
-                            <strong>Điểm trung bình:</strong> @(((double)ViewBag.AverageRating).ToString("0.0")) <i class="fas fa-star"></i>
-                        </p>
-                    }
-                    else
-                    {
-                        <p class="text-muted mb-2"><em>Chưa có đánh giá nào</em></p>
-                    }
-
-                    @if (ViewBag.Reviews != null && ViewBag.Reviews.Count > 0)
-                    {
-                        <ul class="list-group mb-3">
-                            @foreach (var review in ViewBag.Reviews)
-                            {
-                                <li class="list-group-item">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <strong>Rating: @review.Rating <i class='fas fa-star text-warning'></i></strong>
-                                            <span class="text-muted ms-2">@review.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
-                                        </div>
-                                        @if (User.Identity.IsAuthenticated && review.UserName == User.Identity.Name)
-                                        {
-                                            <form asp-action="DeleteReview" asp-route-id="@review.Id" method="post" class="m-0 p-0">
-                                                @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn chắc chắn muốn xóa đánh giá này?');">
-                                                    Xóa
-                                                </button>
-                                            </form>
-                                        }
-                                    </div>
-                                    <p class="mt-2 mb-0">@review.Comment</p>
-                                    <small class="text-muted">By @review.UserName</small>
-                                </li>
-                            }
-                        </ul>
-                    }
-                    else
-                    {
-                        <p>Chưa có đánh giá nào.</p>
-                    }
-
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <h6 class="mt-4">Thêm đánh giá của bạn:</h6>
-                        <form asp-action="AddReview" method="post">
-                            <input type="hidden" name="productId" value="@Model.Id" />
-                            <div class="mb-2">
-                                <label for="rating">Điểm (1-5):</label>
-                                <select id="rating" name="rating" class="form-select" required>
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        <option value="@i">@i</option>
-                                    }
-                                </select>
-                            </div>
-                            <div class="mb-2">
-                                <label for="content">Nội dung:</label>
-                                <textarea id="content" name="comment" class="form-control" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary mt-2">Gửi đánh giá</button>
-                        </form>
-                    }
-                    else
-                    {
-                        <p class="text-muted mt-3">
-                            Bạn cần <a href="/Identity/Account/Login">Đăng nhập</a> để viết đánh giá.
-                        </p>
-                    }
+                <div class="mt-3 d-flex gap-3 align-items-center">
+                    <img src="/images/toei-animation-logo.png" alt="Toei Animation" style="height:32px;">
+                    <img src="/images/dragon-ball-z-logo.png" alt="Dragon Ball Z" style="height:32px;">
+                    <img src="/images/dirtycoins-logo.png" alt="DirtyCoins" style="height:32px;">
+                </div>
+               
                 </div>
             </div>
         </div>
@@ -168,18 +100,15 @@
             object-fit: contain;
             border-radius: 8px;
         }
-
         .img-thumbnail {
             border: 2px solid #eee;
             border-radius: 8px;
             cursor: pointer;
             transition: border 0.2s;
         }
-
-            .img-thumbnail:hover {
-                border: 2px solid #007bff;
-            }
-
+        .img-thumbnail:hover {
+            border: 2px solid #007bff;
+        }
         .thumbnail-image.active {
             border: 2px solid #007bff !important;
         }
@@ -198,6 +127,12 @@
         document.querySelectorAll('.thumbnail-image').forEach(thumb => {
             thumb.classList.remove('active');
         });
-        event.target.classList.add('active');
+        // Set active for clicked thumbnail
+        const thumbs = document.querySelectorAll('.thumbnail-image');
+        thumbs.forEach(thumb => {
+            if (thumb.src === imageUrl || thumb.getAttribute('src') === imageUrl) {
+                thumb.classList.add('active');
+            }
+        });
     }
 </script>

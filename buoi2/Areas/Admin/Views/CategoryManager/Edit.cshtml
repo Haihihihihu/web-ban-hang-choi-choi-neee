@@ -1,6 +1,6 @@
 @model buoi2.Models.Category
 @{
-    ViewData["Title"] = "Thêm danh mục sản phẩm";
+    ViewData["Title"] = "Chỉnh sửa danh mục";
     Layout = "/Views/Shared/_Layout.cshtml";
 }
 
@@ -8,20 +8,12 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-warning text-dark">
                     <h3 class="mb-0">
-                        <i class="fas fa-plus-circle me-2"></i>Thêm danh mục sản phẩm
+                        <i class="fas fa-edit me-2"></i>Chỉnh sửa danh mục
                     </h3>
                 </div>
                 <div class="card-body">
-                    @if (TempData["Success"] != null)
-                    {
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    }
-
                     @if (!ViewData.ModelState.IsValid)
                     {
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -30,14 +22,16 @@
                         </div>
                     }
 
-                    <form asp-action="Add" method="post" enctype="multipart/form-data">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ImageUrl" />
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="mb-3">
                                     <label asp-for="Name" class="form-label fw-bold">
                                         <i class="fas fa-tag me-1"></i>Tên danh mục <span class="text-danger">*</span>
                                     </label>
-                                    <input asp-for="Name" class="form-control form-control-lg"
+                                    <input asp-for="Name" class="form-control form-control-lg" 
                                            placeholder="Nhập tên danh mục..." />
                                     <span asp-validation-for="Name" class="text-danger"></span>
                                 </div>
@@ -49,11 +43,26 @@
                                     </label>
                                     <input type="file" name="imageFile" class="form-control" accept="image/*" />
                                     <small class="form-text text-muted">
-                                        <i class="fas fa-info-circle me-1"></i>Chỉ chấp nhận file ảnh (jpg, png, ...)
+                                        <i class="fas fa-info-circle me-1"></i>Chỉ chấp nhận file ảnh (jpg, png, ...). Nếu không chọn, sẽ giữ ảnh cũ.
                                     </small>
                                 </div>
                             </div>
                         </div>
+
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-eye me-1"></i>Ảnh hiện tại
+                                    </label>
+                                    <div class="border rounded p-3 bg-light">
+                                        <img src="@Model.ImageUrl" alt="@Model.Name" 
+                                             class="img-thumbnail" style="max-width: 200px; max-height: 200px;" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
 
                         <div class="row mt-4">
                             <div class="col-12">
@@ -61,9 +70,14 @@
                                     <a asp-action="Index" class="btn btn-secondary">
                                         <i class="fas fa-arrow-left me-2"></i>Quay lại
                                     </a>
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="fas fa-save me-2"></i>Thêm danh mục
-                                    </button>
+                                    <div>
+                                        <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                                            <i class="fas fa-times me-2"></i>Hủy
+                                        </a>
+                                        <button type="submit" class="btn btn-warning btn-lg">
+                                            <i class="fas fa-save me-2"></i>Cập nhật
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -78,7 +92,7 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         // Auto-hide alerts after 5 seconds
-        setTimeout(function () {
+        setTimeout(function() {
             $('.alert').fadeOut('slow');
         }, 5000);
     </script>

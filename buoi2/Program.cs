@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using buoi2.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +60,12 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(opt =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    DbInitializer.Initialize(services);
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -77,24 +84,25 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Cấu hình Endpoints (QUAN TRỌNG - Sửa lại phần này để tránh AmbiguousMatchException)
+// Cấu hình Endpoints (CHỈNH LẠI CHO ĐÚNG)
 app.UseEndpoints(endpoints =>
 {
-    // 1. Map Area Route (Admin Area) - Phải khai báo TRƯỚC default route
-    endpoints.MapAreaControllerRoute(
-        name: "AdminArea",
-        areaName: "Admin",
-        pattern: "Admin/{controller=ProductManager}/{action=Index}/{id?}");
+
     endpoints.MapControllerRoute(
         name: "areas",
-        pattern: "{area:exists}/{controller=ProductManager}/{action=Index}/{id?}");
+        pattern: "{area:exists}/{controller=CategoryManager}/{action=Add}/{id?}");
 
-    // 2. Map Default Route (Non-Area)
+    // Route cho Area (Admin)
+    endpoints.MapControllerRoute(
+        name: "areas",
+        pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+    // Route mặc định
     endpoints.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}");
 
-    // 3. Map Razor Pages (Identity)
+    // Razor Pages (Identity)
     endpoints.MapRazorPages();
 });
 

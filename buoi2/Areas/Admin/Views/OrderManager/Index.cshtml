@@ -1,0 +1,172 @@
+﻿@model IEnumerable<buoi2.Models.Order>
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white d-flex align-items-center rounded-top-4">
+                    <h3 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>@ViewData["Title"]</h3>
+                </div>
+                <div class="card-body bg-light rounded-bottom-4">
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info text-center">
+                            <h4><i class="fas fa-info-circle me-2"></i>Không có đơn hàng nào</h4>
+                            <p>Hiện tại chưa có đơn hàng nào trong hệ thống.</p>
+                        </div>
+                    }
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle bg-white rounded-4 overflow-hidden">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Địa chỉ giao</th>
+                                    <th>Ghi chú</th>
+                                    <th>Trạng thái hiện tại</th>
+                                    <th>Cập nhật trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model)
+                                {
+                                    <tr id="order-row-@order.Id">
+                                        <td><span class="badge bg-secondary fs-6">#@order.Id</span></td>
+                                        <td>@(order.ApplicationUser?.Email ?? "N/A")</td>
+                                        <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td class="fw-bold text-primary">@order.TotalPrice.ToString("N0") ₫</td>
+                                        <td>@order.ShippingAddress</td>
+                                        <td>@(string.IsNullOrEmpty(order.Notes) ? "-" : order.Notes)</td>
+                                        <td id="status-display-@order.Id">
+                                            @{
+                                                string badgeClass = "";
+                                                string statusText = "";
+                                                switch (order.Status)
+                                                {
+                                                    case buoi2.Models.Order.OrderStatus.Pending:
+                                                        badgeClass = "bg-warning text-dark";
+                                                        statusText = "Chờ xử lý";
+                                                        break;
+                                                    case buoi2.Models.Order.OrderStatus.Preparing:
+                                                        badgeClass = "bg-info text-white";
+                                                        statusText = "Đang xử lý";
+                                                        break;
+                                                    case buoi2.Models.Order.OrderStatus.Shipping:
+                                                        badgeClass = "bg-primary text-white";
+                                                        statusText = "Đã gửi hàng";
+                                                        break;
+                                                    case buoi2.Models.Order.OrderStatus.Delivered:
+                                                        badgeClass = "bg-success text-white";
+                                                        statusText = "Đã giao hàng";
+                                                        break;
+                                                    case buoi2.Models.Order.OrderStatus.Cancelled:
+                                                        badgeClass = "bg-danger text-white";
+                                                        statusText = "Đã hủy";
+                                                        break;
+                                                    default:
+                                                        badgeClass = "bg-secondary text-white";
+                                                        statusText = order.Status.ToString();
+                                                        break;
+                                                }
+                                            }
+                                            <span class="badge @badgeClass status-badge-@order.Id fs-5 px-4 py-2 shadow">
+                                                @statusText (@((int)order.Status))
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="input-group input-group-sm">
+                                                <select class="form-select form-select-sm rounded-pill" id="select-@order.Id">
+                                                    @foreach (var status in Enum.GetValues(typeof(buoi2.Models.Order.OrderStatus)).Cast<buoi2.Models.Order.OrderStatus>())
+                                                    {
+                                                        string optionText = status switch
+                                                        {
+                                                            buoi2.Models.Order.OrderStatus.Pending => "Chờ xử lý",
+                                                            buoi2.Models.Order.OrderStatus.Preparing => "Đang xử lý",
+                                                            buoi2.Models.Order.OrderStatus.Shipping => "Đã gửi hàng",
+                                                            buoi2.Models.Order.OrderStatus.Delivered => "Đã giao hàng",
+                                                            buoi2.Models.Order.OrderStatus.Cancelled => "Đã hủy",
+                                                            _ => status.ToString()
+                                                        };
+                                                        <option value="@((int)status)" @(order.Status == status ? "selected" : "")>
+                                                            @optionText (@((int)status))
+                                                        </option>
+                                                    }
+                                                </select>
+                                                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill ms-2 px-3 shadow-sm" onclick="submitUpdateStatus(@order.Id)">
+                                                    <i class="fas fa-sync-alt"></i> Cập nhật
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.AntiForgeryToken()
+@section Scripts {
+<script>
+    function submitUpdateStatus(orderId) {
+        const select = document.getElementById(`select-${orderId}`);
+        const newStatus = select.value;
+        const statusText = select.options[select.selectedIndex].text;
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang cập nhật...';
+        button.disabled = true;
+        fetch('@Url.Action("UpdateStatus", "OrderManager", new { area = "Admin" })', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `id=${orderId}&status=${newStatus}`
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("HTTP error " + response.status);
+                return response.json();
+            })
+            .then(data => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                if (data.success) {
+                    updateStatusBadge(orderId, data.newStatus, data.statusValue);
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                alert("Lỗi: " + error.message);
+            });
+    }
+    function updateStatusBadge(orderId, statusText, statusValue) {
+        const badge = document.querySelector(`#status-display-${orderId} .status-badge-${orderId}`);
+        let badgeClass = 'bg-secondary text-white';
+        let vietnamese = statusText;
+        switch (parseInt(statusValue)) {
+            case 0: badgeClass = 'bg-warning text-dark'; vietnamese = 'Chờ xử lý'; break;
+            case 1: badgeClass = 'bg-info text-white'; vietnamese = 'Đang xử lý'; break;
+            case 2: badgeClass = 'bg-primary text-white'; vietnamese = 'Đã gửi hàng'; break;
+            case 3: badgeClass = 'bg-success text-white'; vietnamese = 'Đã giao hàng'; break;
+            case 4: badgeClass = 'bg-danger text-white'; vietnamese = 'Đã hủy'; break;
+        }
+        badge.className = `badge ${badgeClass} status-badge-${orderId} fs-5 px-4 py-2 shadow`;
+        badge.textContent = `${vietnamese} (${statusValue})`;
+    }
+    setTimeout(function () {
+        $('.alert').fadeOut('slow');
+    }, 5000);
+</script>
+}

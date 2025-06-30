@@ -1,57 +1,332 @@
 ﻿@model buoi2.Models.Order
 @{
-    ViewData["Title"] = "Checkout";
+    ViewData["Title"] = "Thanh toán";
     var cart = ViewBag.Cart as buoi2.Models.ShoppingCart;
+    var applicableVouchers = ViewBag.ApplicableVouchers as List<dynamic>;
+    var notApplicableVouchers = ViewBag.NotApplicableVouchers as List<dynamic>;
+    var isNewUser = ViewBag.IsNewUser as bool? ?? false;
 }
-<div class="container mt-4">
-    <h3 class="mb-4">Sản phẩm trong giỏ hàng</h3>
-    <table class="table table-bordered">
-        <thead class="table-light">
-            <tr>
-                <th>Sản phẩm</th>
-                <th>Số lượng</th>
-                <th>Giá</th>
-                <th>Thành tiền</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (cart != null && cart.Items.Any())
-            {
-                foreach (var item in cart.Items)
-                {
-                    <tr>
-                        <td>@item.Name</td>
-                        <td>@item.Quantity</td>
-                        <td>@item.Price.ToString("N0")</td>
-                        <td>@((item.Quantity * item.Price).ToString("N0"))</td>
-                    </tr>
-                }
-            }
-        </tbody>
-        <tfoot>
-            <tr style="background: #d4f6ff;">
-                <td colspan="3" class="fw-bold">Tổng tiền:</td>
-                <td class="fw-bold">@((cart?.Items.Sum(i => i.Quantity * i.Price) ?? 0).ToString("N0")) VNĐ</td>
-            </tr>
-        </tfoot>
-    </table>
 
-    <div class="row justify-content-center mt-5">
+<h2>Thanh toán</h2>
+
+@if (cart == null || !cart.Items.Any())
+{
+    <div class="alert alert-warning">
+        <h4>Giỏ hàng trống</h4>
+        <p>Bạn cần thêm sản phẩm vào giỏ hàng trước khi thanh toán.</p>
+        <a href="@Url.Action("Index", "Product")" class="btn btn-primary">Tiếp tục mua sắm</a>
+    </div>
+}
+else
+{
+    <div class="row">
         <div class="col-md-8">
-            <h2 class="text-center mb-4">THÔNG TIN ĐẶT HÀNG</h2>
+            <h4>Sản phẩm trong giỏ hàng</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in cart.Items)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.Price.ToString("N0") ₫</td>
+                                <td>@((item.Price * item.Quantity).ToString("N0")) ₫</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
             <form asp-action="Checkout" method="post">
+                <input type="hidden" id="VoucherCodeInput" name="VoucherCode" />
+
                 <div class="mb-3">
-                    <label class="form-label fw-bold">ĐỊA CHỈ GIAO HÀNG</label>
-                    <input asp-for="ShippingAddress" class="form-control" placeholder="Nhập địa chỉ giao hàng của bạn..." />
+                    <label class="form-label">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                    <input asp-for="ShippingAddress" class="form-control" required />
+                    <span asp-validation-for="ShippingAddress" class="text-danger"></span>
                 </div>
+
                 <div class="mb-3">
-                    <label class="form-label fw-bold">GHI CHÚ</label>
-                    <textarea asp-for="Notes" class="form-control" placeholder="Nếu cần gì hãy để lại ghi chú..."></textarea>
+                    <label class="form-label">Ghi chú</label>
+                    <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Ghi chú thêm về đơn hàng (tùy chọn)"></textarea>
                 </div>
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-dark btn-lg px-5">Đặt Hàng</button>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Đặt hàng</button>
+                    <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại giỏ hàng</a>
                 </div>
             </form>
         </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Tổng đơn hàng</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tạm tính:</span>
+                        <span id="subtotal">@cart.GetTotal().ToString("N0") ₫</span>
+                    </div>
+
+                    <!-- Voucher Section -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>Voucher:</span>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#voucherModal">
+                                <i class="fas fa-ticket-alt"></i> Chọn voucher
+                            </button>
+                        </div>
+                        <div id="selected-voucher" class="text-muted small" style="display: none;">
+                            <div class="alert alert-info py-2 px-3 mb-0">
+                                <strong id="voucher-name"></strong>
+                                <div id="voucher-desc"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Giảm giá:</span>
+                        <span id="voucher-discount" class="text-success">- 0 ₫</span>
+                    </div>
+
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Tổng thanh toán:</strong>
+                        <strong id="total-after-voucher" class="text-danger">@cart.GetTotal().ToString("N0") ₫</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Voucher Modal -->
+<div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="voucherModalLabel">
+                    <i class="fas fa-ticket-alt"></i> Chọn voucher
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="voucherSelection" value="" id="no-voucher" checked>
+                        <label class="form-check-label" for="no-voucher">
+                            <strong>Không sử dụng voucher</strong>
+                        </label>
+                    </div>
+                </div>
+
+                @if (applicableVouchers != null && applicableVouchers.Any())
+                {
+                    <h6 class="text-success mb-3">
+                        <i class="fas fa-check-circle"></i> Voucher có thể sử dụng (@applicableVouchers.Count)
+                    </h6>
+
+                    @foreach (var v in applicableVouchers)
+                    {
+                        <div class="card mb-3 border-success">
+                            <div class="card-body">
+                                <div class="form-check">
+                                    @{
+                                        var discountText = "";
+                                        var discountValue = 0m;
+
+                                        if (v.DiscountAmount != null && v.DiscountAmount > 0)
+                                        {
+                                            discountText = $"Giảm {((decimal)v.DiscountAmount).ToString("N0")} ₫";
+                                            discountValue = (decimal)v.DiscountAmount;
+                                        }
+                                        else if (v.DiscountPercent != null && v.DiscountPercent > 0)
+                                        {
+                                            discountText = $"Giảm {v.DiscountPercent}%";
+                                            discountValue = cart.GetTotal() * ((decimal)v.DiscountPercent / 100);
+                                        }
+                                    }
+
+                                    <input class="form-check-input" type="radio" name="voucherSelection"
+                                           value="@v.Code" id="voucher-@v.Id"
+                                           data-discount="@discountValue"
+                                           data-type="@(v.DiscountAmount != null ? "amount" : "percent")"
+                                           data-percent="@(v.DiscountPercent ?? 0)"
+                                           data-name="@v.Code"
+                                           data-desc="@discountText">
+
+                                    <label class="form-check-label w-100" for="voucher-@v.Id">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1 text-success">@v.Code</h6>
+                                            </div>
+                                            <span class="badge bg-success">Áp dụng được</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            @if (v.MinOrderAmount != null)
+                                            {
+                                                <small class="text-muted">
+                                                    <i class="fas fa-shopping-cart"></i> Đơn tối thiểu: @(((decimal)v.MinOrderAmount).ToString("N0")) ₫
+                                                </small>
+                                            }
+                                            @if (v.IsForNewUser)
+                                            {
+                                                <small class="text-info ms-2">
+                                                    <i class="fas fa-user-plus"></i> Khách hàng mới
+                                                </small>
+                                            }
+                                            <small class="text-muted ms-2">
+                                                <i class="fas fa-clock"></i> Còn @v.UsageRemaining lượt sử dụng
+                                            </small>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+                @if (notApplicableVouchers != null && notApplicableVouchers.Any())
+                {
+                    <h6 class="text-muted mb-3 mt-4">
+                        <i class="fas fa-exclamation-triangle"></i> Voucher không thể sử dụng (@notApplicableVouchers.Count)
+                    </h6>
+
+                    @foreach (var v in notApplicableVouchers)
+                    {
+                        <div class="card mb-3 border-warning">
+                            <div class="card-body opacity-75">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1 text-muted">@v.Code</h6>
+                                        <p class="mb-1">
+                                            @if (v.DiscountAmount != null && v.DiscountAmount > 0)
+                                            {
+                                                <span>Giảm @(((decimal)v.DiscountAmount).ToString("N0")) ₫</span>
+                                            }
+                                            else if (v.DiscountPercent != null && v.DiscountPercent > 0)
+                                            {
+                                                <span>Giảm @v.DiscountPercent%</span>
+                                            }
+                                        </p>
+                                    </div>
+                                    <span class="badge bg-warning text-dark">Không thể dùng</span>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-danger">
+                                        <i class="fas fa-times-circle"></i> @v.Reason
+                                    </small>
+                                    @if (v.MinOrderAmount != null)
+                                    {
+                                        <small class="text-muted ms-2">
+                                            <i class="fas fa-shopping-cart"></i> Đơn tối thiểu: @(((decimal)v.MinOrderAmount).ToString("N0")) ₫
+                                        </small>
+                                    }
+                                    @if (v.IsForNewUser)
+                                    {
+                                        <small class="text-info ms-2">
+                                            <i class="fas fa-user-plus"></i> Khách hàng mới
+                                        </small>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+                @if ((applicableVouchers == null || !applicableVouchers.Any()) && (notApplicableVouchers == null || !notApplicableVouchers.Any()))
+                {
+                    <div class="text-center py-4">
+                        <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Hiện tại không có voucher nào khả dụng</p>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="apply-voucher">Áp dụng</button>
+            </div>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        const subtotal = parseFloat('@(cart?.GetTotal() ?? 0)');
+        const discountSpan = document.getElementById('voucher-discount');
+        const totalSpan = document.getElementById('total-after-voucher');
+        const voucherCodeInput = document.getElementById('VoucherCodeInput');
+        const selectedVoucherDiv = document.getElementById('selected-voucher');
+        const voucherName = document.getElementById('voucher-name');
+        const voucherDesc = document.getElementById('voucher-desc');
+        const applyButton = document.getElementById('apply-voucher');
+
+        // Xử lý khi chọn voucher
+        document.querySelectorAll('input[name="voucherSelection"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                updateVoucherDisplay();
+            });
+        });
+
+        // Xử lý khi click "Áp dụng"
+        applyButton.addEventListener('click', () => {
+            const selectedRadio = document.querySelector('input[name="voucherSelection"]:checked');
+            if (selectedRadio) {
+                voucherCodeInput.value = selectedRadio.value;
+
+                // Cập nhật hiển thị voucher đã chọn
+                if (selectedRadio.value === '') {
+                    selectedVoucherDiv.style.display = 'none';
+                } else {
+                    voucherName.textContent = selectedRadio.dataset.name;
+                    voucherDesc.textContent = selectedRadio.dataset.desc;
+                    selectedVoucherDiv.style.display = 'block';
+                }
+
+                updateVoucherDisplay();
+
+                // Đóng modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('voucherModal'));
+                modal.hide();
+            }
+        });
+
+        function updateVoucherDisplay() {
+            const selectedRadio = document.querySelector('input[name="voucherSelection"]:checked');
+            let discount = 0;
+
+            if (selectedRadio && selectedRadio.value !== '') {
+                const discountType = selectedRadio.dataset.type;
+                if (discountType === 'amount') {
+                    discount = parseFloat(selectedRadio.dataset.discount) || 0;
+                } else if (discountType === 'percent') {
+                    const percent = parseFloat(selectedRadio.dataset.percent) || 0;
+                    discount = subtotal * (percent / 100);
+                }
+            }
+
+            discount = Math.min(discount, subtotal);
+            const newTotal = Math.max(0, subtotal - discount);
+
+            discountSpan.textContent = discount > 0 ? `- ${discount.toLocaleString()} ₫` : '- 0 ₫';
+            totalSpan.textContent = `${newTotal.toLocaleString()} ₫`;
+        }
+
+        // Khởi tạo
+        updateVoucherDisplay();
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
