@@ -72,7 +72,6 @@
         <div class="col-lg-6 mb-4">
             <div class="bg-white rounded shadow p-4 h-100 d-flex flex-column">
                 <h1 class="mb-2">@Model.Name</h1>
-                <div class="text-muted mb-2">Mã sản phẩm: SP@Model.Id</div>
                 <div class="mb-3">
                     <span class="fs-3 fw-bold text-danger">@Model.Price.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))</span>
                 </div>
@@ -95,9 +94,9 @@
                     <p>@Model.Description</p>
                 </div>
                 <div class="mt-3 d-flex gap-3 align-items-center">
-                    <img src="/images/toei-animation-logo.png" alt="Toei Animation" style="height:32px;">
-                    <img src="/images/dragon-ball-z-logo.png" alt="Dragon Ball Z" style="height:32px;">
-                    <img src="/images/dirtycoins-logo.png" alt="DirtyCoins" style="height:32px;">
+                    <img src="/images/fifa_PNG16.png" alt="FIFA" style="height:32px;">
+                    <img src="/images/UEFA-Champions-League-logo.png" alt="UEFA Champions League" style="height:32px;">
+                    <img src="/images/Logo UEFA_Europa_League.png" alt="UEFA Europa League" style="height:32px;">
                 </div>
             </div>
         </div>
@@ -257,14 +256,14 @@
         }
         $(document).ready(function () {
             const productId = @Model.Id;
+            const antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
             $('.add-to-cart-btn').click(function () {
                 $.ajax({
                     url: '/ShoppingCart/AddToCart',
                     type: 'POST',
-                    data: { productId: productId, quantity: 1 },
+                    data: { productId: productId, quantity: 1, __RequestVerificationToken: antiForgeryToken },
                     success: function (res) {
                         showAlert('Đã thêm sản phẩm vào giỏ hàng!');
-                        // Cập nhật badge nếu có
                         if (window.updateCartBadge) window.updateCartBadge();
                     },
                     error: function () {
@@ -276,9 +275,13 @@
                 $.ajax({
                     url: '/ShoppingCart/AddToCart',
                     type: 'POST',
-                    data: { productId: productId, quantity: 1 },
-                    success: function () {
-                        window.location.href = '/ShoppingCart/Checkout';
+                    data: { productId: productId, quantity: 1, __RequestVerificationToken: antiForgeryToken },
+                    success: function (res) {
+                        if (res.success) {
+                            window.location.href = '/ShoppingCart/Checkout';
+                        } else {
+                            showAlert(res.message || 'Có lỗi khi mua ngay!', 'danger');
+                        }
                     },
                     error: function () {
                         showAlert('Có lỗi khi mua ngay!', 'danger');

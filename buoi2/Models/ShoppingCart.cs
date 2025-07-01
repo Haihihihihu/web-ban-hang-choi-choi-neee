@@ -3,6 +3,7 @@
     public class ShoppingCart
     {
         public List<CartItem> Items { get; set; } = new List<CartItem>();
+        public string VoucherCode { get; set; } // Mã voucher đang áp dụng
 
         public void AddItem(CartItem item)
         {
@@ -30,6 +31,12 @@
         public void RemoveItem(int productId)
         {
             Items.RemoveAll(i => i.ProductId == productId);
+        }
+
+        public decimal GetDiscountedTotal(decimal discountAmount)
+        {
+            var total = GetTotal();
+            return total - discountAmount > 0 ? total - discountAmount : 0;
         }
     }
 }

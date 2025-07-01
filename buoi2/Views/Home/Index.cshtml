@@ -340,17 +340,25 @@
 
     .category-image-container {
         width: 100%;
-        height: 180px; /* Chiều cao cố định cho ảnh danh mục */
+        height: 220px; /* Tăng chiều cao nếu muốn ảnh lớn hơn */
         overflow: hidden;
         position: relative;
         border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
     }
 
     .category-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Đảm bảo ảnh vừa khung mà không bị méo */
-        transition: transform 0.3s ease;
+        max-width: 90%;
+        max-height: 90%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
+        background: transparent;
     }
 
     .category-card:hover .category-image {
@@ -462,12 +470,12 @@
 
 </style>
 
-<div class="banner-slider">
-    <div class="slide active" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');">
+<div class="banner-slider" style="background: url('/images/banner-football.jpg') center center/cover no-repeat;">
+    <div class="slide active" style="background: rgba(0,0,0,0.35); width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
         <div class="slide-content">
-            <h2 class="slide-title">Thời trang cao cấp</h2>
-            <p class="slide-subtitle">Phong cách đẳng cấp cho bạn</p>
-            <a href="#footer-categories" class="slide-btn">Khám phá Danh mục</a>
+            <h2 class="slide-title">QUẦN ÁO BÓNG ĐÁ CHẤT LƯỢNG CAO</h2>
+            <p class="slide-subtitle">Áo bóng đá được tin dùng hàng đầu</p>
+            <a href="#footer-categories" class="slide-btn">Khám phá ngay</a>
         </div>
     </div>
 </div>
@@ -477,7 +485,7 @@
         <div class="container">
             <h1 class="welcome-title">Chào mừng đến với cửa hàng</h1>
             <p class="welcome-subtitle">
-                Khám phá bộ sưu tập thời trang độc đáo và chất lượng cao.
+                Khám phá bộ sưu tập áo đấu độc đáo và chất lượng cao.
                 Chúng tôi mang đến cho bạn những sản phẩm tốt nhất với giá cả hợp lý.
             </p>
         </div>

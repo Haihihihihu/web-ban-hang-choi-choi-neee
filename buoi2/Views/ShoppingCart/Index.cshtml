@@ -243,6 +243,13 @@
     {
         @Html.AntiForgeryToken()
 
+        <form asp-action="ApplyVoucher" method="post" class="mb-3">
+            <div class="input-group">
+                <input type="text" name="voucherCode" class="form-control" placeholder="Nhập mã voucher..." value="@Model.VoucherCode" />
+                <button type="submit" class="btn btn-primary">Áp dụng</button>
+            </div>
+        </form>
+
         <div class="cart-table-container">
             <table class="cart-table">
                 <thead>

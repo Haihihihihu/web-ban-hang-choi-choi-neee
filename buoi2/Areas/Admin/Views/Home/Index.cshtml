@@ -310,21 +310,21 @@
     }
 
     /* Grid cho danh mục */
-    .categories-grid { /* Class mới cho grid danh mục */
+    .categories-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* 200px là min width cho mỗi cột */
-        gap: 30px; /* Khoảng cách giữa các thẻ danh mục */
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 30px;
         margin-bottom: 40px;
     }
 
     /* Thẻ danh mục */
-    .category-card { /* Class mới cho thẻ danh mục */
+    .category-card {
         background-color: #fff;
         border-radius: 8px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         overflow: hidden;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        text-align: center; /* Căn giữa nội dung thẻ */
+        text-align: center;
     }
 
         .category-card:hover {
@@ -335,22 +335,30 @@
     .category-link {
         text-decoration: none;
         color: inherit;
-        display: block; /* Để toàn bộ thẻ là link */
+        display: block;
     }
 
     .category-image-container {
         width: 100%;
-        height: 180px; /* Chiều cao cố định cho ảnh danh mục */
-        overflow: hidden;
+        height: 180px;
+        overflow: visible; /* Cho phép hiển thị toàn bộ ảnh */
         position: relative;
         border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        padding: 15px; /* Thêm padding để tạo khoảng cách */
     }
 
     .category-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Đảm bảo ảnh vừa khung mà không bị méo */
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
         transition: transform 0.3s ease;
+        display: block; /* Đảm bảo ảnh hiển thị như block element */
     }
 
     .category-card:hover .category-image {
@@ -367,13 +375,13 @@
         color: #333;
         margin-top: 0;
         margin-bottom: 10px;
-        white-space: nowrap; /* Ngăn không cho tên bị xuống dòng */
-        overflow: hidden; /* Ẩn phần bị tràn */
-        text-overflow: ellipsis; /* Hiển thị dấu ba chấm nếu tràn */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     /* No categories found */
-    .no-categories { /* Class mới cho thông báo không có danh mục */
+    .no-categories {
         padding: 60px 20px;
         background-color: #fff;
         border-radius: 8px;
@@ -466,7 +474,7 @@
 </style>
 
 <div class="banner-slider">
-    <div class="slide active" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');">
+    <div class="slide active" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1579952363873-27d3bfad9c0d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');">
         <div class="slide-content">
             <h2 class="slide-title">Thời trang cao cấp</h2>
             <p class="slide-subtitle">Phong cách đẳng cấp cho bạn</p>

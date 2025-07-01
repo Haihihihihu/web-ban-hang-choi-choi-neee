@@ -376,7 +376,7 @@
 
                        
 
-                        <div class="product-price">$@item.Price</div>
+                        <div class="product-price">@item.Price.ToString("N0") ₫</div>
                         <div class="product-actions">
                             <a asp-action="Display" asp-route-id="@item.Id" class="action-btn btn-view">View</a>
 

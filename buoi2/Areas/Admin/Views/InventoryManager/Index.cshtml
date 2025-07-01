@@ -3,6 +3,42 @@
     ViewData["Title"] = "Quản lý kho";
     Layout = "/Views/Shared/_Layout.cshtml";
 }
+<style>
+    /* Định dạng lại tiêu đề */
+    h2 {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    /* Định dạng bảng */
+    .table {
+        background-color: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+    /* Huy hiệu tồn kho */
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5em 0.75em;
+    }
+
+    /* Nút thao tác */
+    .btn-sm {
+        font-size: 0.85rem;
+    }
+
+    /* Hiệu ứng fade alert */
+    .alert {
+        transition: opacity 0.5s ease-in-out;
+    }
+
+</style>
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
