@@ -12,8 +12,8 @@ using buoi2.Models;
 namespace buoi2.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250616015335_initialOrder")]
-    partial class initialOrder
+    [Migration("20250618165429_All-Database")]
+    partial class AllDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

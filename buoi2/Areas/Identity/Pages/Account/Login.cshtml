@@ -4,12 +4,14 @@
     ViewData["Title"] = "Log in";
 }
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <style>
     body {
         margin: 0;
         padding: 0;
         min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #f0f2f5; /* Nền xám nhạt để giống ảnh mẫu */
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         overflow-x: hidden;
     }
@@ -23,6 +25,7 @@
         position: relative;
     }
 
+    /* Background Shapes */
     .background-shapes {
         position: absolute;
         top: 0;
@@ -37,298 +40,310 @@
         position: absolute;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.1);
-        animation: float 6s ease-in-out infinite;
+        animation: float 8s ease-in-out infinite;
     }
 
-    .shape:nth-child(1) {
-        width: 80px;
-        height: 80px;
-        top: 10%;
-        left: 10%;
-        animation-delay: 0s;
-    }
+        .shape:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            top: 15%;
+            left: 15%;
+            animation-delay: 0s;
+        }
 
-    .shape:nth-child(2) {
-        width: 120px;
-        height: 120px;
-        top: 70%;
-        left: 80%;
-        animation-delay: 2s;
-    }
+        .shape:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            left: 75%;
+            animation-delay: 3s;
+        }
 
-    .shape:nth-child(3) {
-        width: 60px;
-        height: 60px;
-        top: 30%;
-        left: 85%;
-        animation-delay: 4s;
-    }
+        .shape:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            top: 25%;
+            left: 80%;
+            animation-delay: 6s;
+        }
+
+        .shape:nth-child(4) {
+            width: 120px;
+            height: 120px;
+            top: 75%;
+            left: 10%;
+            animation-delay: 1.5s;
+        }
 
     @@keyframes float {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-20px) rotate(180deg); }
+        0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(-30px) rotate(180deg);
+        }
     }
 
     .login-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        border-radius: 20px;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        background: #ffffff;
+        backdrop-filter: blur(0px);
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         padding: 0;
         width: 100%;
-        max-width: 450px;
+        max-width: 400px;
         position: relative;
         z-index: 1;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: none;
         overflow: hidden;
     }
 
     .login-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 30px;
+        background: #ffffff;
+        color: #333;
+        padding: 20px;
         text-align: center;
         position: relative;
+        border-bottom: 1px solid #eee;
     }
 
-    .login-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-        opacity: 0.3;
-    }
+        .login-header::before {
+            content: none;
+        }
 
-    .login-header h1 {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 600;
-        position: relative;
-        z-index: 1;
-    }
+        .login-header h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+            text-shadow: none;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    .login-header .subtitle {
-        margin: 8px 0 0 0;
-        opacity: 0.9;
-        font-size: 16px;
-        font-weight: 300;
-        position: relative;
-        z-index: 1;
-    }
+        .login-header .subtitle {
+            display: none;
+        }
 
     .login-body {
-        padding: 40px;
+        padding: 25px;
     }
 
     .form-group {
-        margin-bottom: 25px;
+        margin-bottom: 15px; /* Khoảng cách giữa các group */
         position: relative;
     }
 
     .form-control {
         width: 100%;
-        padding: 16px 20px;
-        border: 2px solid #e8ecf4;
-        border-radius: 12px;
-        font-size: 16px;
+        padding: 10px 10px 10px 40px; /* Padding bên trái cho icon */
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
         transition: all 0.3s ease;
-        background: rgba(255, 255, 255, 0.8);
+        background: #fff;
         box-sizing: border-box;
+        height: 38px;
     }
 
-    .form-control:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        background: rgba(255, 255, 255, 1);
-        transform: translateY(-2px);
-    }
+        .form-control:focus {
+            outline: none;
+            border-color: #aaa;
+            box-shadow: none;
+            background: #fff;
+            transform: none;
+        }
 
     .form-label {
         position: absolute;
-        left: 20px;
-        top: 16px;
-        color: #8b9dc3;
-        font-size: 16px;
-        transition: all 0.3s ease;
+        left: 40px; /* Căn label theo icon */
+        top: 10px; /* Căn label theo chiều cao input */
+        color: #888;
+        font-size: 14px;
+        transition: all 0.2s ease;
         pointer-events: none;
         background: transparent;
+        font-weight: 400;
     }
 
     .form-control:focus + .form-label,
     .form-control:not(:placeholder-shown) + .form-label {
-        top: -8px;
-        left: 16px;
-        font-size: 12px;
-        color: #667eea;
+        top: -8px; /* Đẩy label lên trên */
+        left: 10px; /* Di chuyển label vào góc */
+        font-size: 10px;
+        color: #555;
         background: white;
-        padding: 0 8px;
-        font-weight: 500;
+        padding: 0 5px;
+        font-weight: 600;
+        z-index: 2;
     }
 
-    .remember-me {
-        display: flex;
-        align-items: center;
-        margin: 20px 0;
+    /* Icon Styling */
+    .form-group i {
+        position: absolute;
+        left: 15px; /* Vị trí icon */
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+        font-size: 16px;
+        z-index: 3;
     }
 
-    .remember-me input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        margin-right: 12px;
-        accent-color: #667eea;
+    /* Đảm bảo Font Awesome được dùng */
+    .form-group .fa-envelope::before,
+    .form-group .fa-lock::before {
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
     }
 
-    .remember-me label {
-        font-size: 14px;
-        color: #64748b;
-        cursor: pointer;
-    }
+    /* Loại bỏ .remember-me vì không có trong ảnh mẫu */
+    /* .remember-me { display: none; } */
 
     .btn-login {
         width: 100%;
-        padding: 16px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 12px;
+        padding: 10px;
+        background: #f0f0f0;
+        color: #555;
+        border: 1px solid #ccc;
+        border-radius: 4px;
         font-size: 16px;
-        font-weight: 600;
+        font-weight: 500;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
         position: relative;
         overflow: hidden;
+        text-transform: none;
+        letter-spacing: 0;
+        margin-top: 20px; /* Tăng khoảng cách từ trường mật khẩu đến nút */
     }
 
-    .btn-login::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s;
-    }
+        .btn-login::before {
+            content: none;
+        }
 
-    .btn-login:hover::before {
-        left: 100%;
-    }
+        .btn-login:hover {
+            transform: none;
+            box-shadow: none;
+            background: #e0e0e0;
+            color: #333;
+        }
 
-    .btn-login:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-login:active {
-        transform: translateY(0);
-    }
+        .btn-login:active {
+            transform: none;
+        }
 
     .divider {
-        text-align: center;
-        margin: 30px 0;
-        position: relative;
-    }
-
-    .divider::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: #e8ecf4;
-    }
-
-    .divider span {
-        background: white;
-        padding: 0 20px;
-        color: #8b9dc3;
-        font-size: 14px;
+        display: none; /* Bỏ divider */
     }
 
     .social-login {
-        display: grid;
-        gap: 12px;
-        margin-bottom: 20px;
+        display: none; /* Bỏ social login */
     }
 
-    .btn-social {
-        padding: 12px;
-        border: 2px solid #e8ecf4;
-        border-radius: 12px;
-        background: white;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 14px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .btn-social:hover {
-        border-color: #667eea;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .links {
+    .login-link {
         text-align: center;
-        margin-top: 20px;
+        margin-top: 20px; /* Khoảng cách từ form */
+        padding: 0;
+        background: transparent;
+        border: none;
     }
 
-    .links a {
-        color: #667eea;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        display: inline-block;
-        margin: 5px 15px;
-    }
+        .login-link p {
+            margin: 0;
+            color: #777;
+            font-size: 14px;
+        }
 
-    .links a:hover {
-        color: #764ba2;
-        transform: translateY(-1px);
-    }
+        .login-link a {
+            color: #555;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin: 0 5px; /* Khoảng cách nhỏ hơn giữa các link */
+            display: inline-block;
+        }
+
+            .login-link a:hover {
+                color: #000;
+                text-decoration: underline;
+            }
 
     .text-danger {
-        color: #ef4444;
+        color: #dc3545;
         font-size: 12px;
-        margin-top: 5px;
+        margin-top: 4px;
         display: block;
+        font-weight: 500;
     }
 
     .validation-summary {
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 20px;
-        color: #ef4444;
-        font-size: 14px;
+        background: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.2);
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 15px;
+        color: #dc3545;
+        font-size: 13px;
+        font-weight: 500;
     }
 
+    /* Responsive adjustments */
     @@media (max-width: 768px) {
         .login-container {
-            padding: 10px;
+            padding: 15px;
         }
-        
+
         .login-card {
-            margin: 10px;
+            margin: 0;
+            max-width: 100%;
         }
-        
+
         .login-header {
-            padding: 25px;
+            padding: 15px;
         }
-        
+
+            .login-header h1 {
+                font-size: 18px;
+            }
+
         .login-body {
-            padding: 30px;
+            padding: 20px;
+        }
+
+        .form-control {
+            padding: 8px 10px 8px 35px;
+            height: 36px;
+        }
+
+        .form-label {
+            top: 8px;
+            left: 35px;
+            font-size: 13px;
+        }
+
+        .form-control:focus + .form-label,
+        .form-control:not(:placeholder-shown) + .form-label {
+            top: -6px;
+            left: 8px;
+            font-size: 9px;
+        }
+
+        .form-group i {
+            left: 12px;
+            font-size: 14px;
+        }
+
+        .btn-login {
+            padding: 10px;
+            font-size: 15px;
+            margin-top: 15px; /* Điều chỉnh margin-top cho mobile */
+        }
+
+        .login-link p {
+            font-size: 13px;
         }
     }
 </style>
@@ -338,66 +353,72 @@
         <div class="shape"></div>
         <div class="shape"></div>
         <div class="shape"></div>
+        <div class="shape"></div>
     </div>
-    
+
     <div class="login-card">
         <div class="login-header">
-            <h1>Welcome Back</h1>
-            <p class="subtitle">Sign in to your account</p>
+            <h1>LOGIN YOUR ACCOUNT</h1>
+            @* <p class="subtitle">Sign in to your account</p> *@
         </div>
-        
+
         <div class="login-body">
             <form id="account" method="post">
                 <div asp-validation-summary="ModelOnly" class="validation-summary text-danger" role="alert"></div>
-                
+
                 <div class="form-group">
+                    <i class="fas fa-envelope"></i>
                     <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder=" " />
-                    <label asp-for="Input.Email" class="form-label">Email Address</label>
+                    <label asp-for="Input.Email" class="form-label">Email</label>
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
-                
+
                 <div class="form-group">
+                    <i class="fas fa-lock"></i>
                     <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder=" " />
-                    <label asp-for="Input.Password" class="form-label">Password</label>
+                    <label asp-for="Input.Password" class="form-label">Mật khẩu</label>
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
-                
-                <div class="remember-me">
-                    <input class="form-check-input" asp-for="Input.RememberMe" type="checkbox" />
-                    <label asp-for="Input.RememberMe" class="form-label">
-                        @Html.DisplayNameFor(m => m.Input.RememberMe)
-                    </label>
-                </div>
-                
+
+                @* Loại bỏ phần "Remember me" *@
+                @* <div class="remember-me">
+                <input class="form-check-input" asp-for="Input.RememberMe" type="checkbox" />
+                <label asp-for="Input.RememberMe" class="form-label">
+                Nhớ mật khẩu
+                </label>
+                </div> *@
+
                 <button id="login-submit" type="submit" class="btn-login">
-                    Sign In
+                    Đăng nhập
                 </button>
             </form>
-            
+
             @{
-                if ((Model.ExternalLogins?.Count ?? 0) > 0)
-                {
-                    <div class="divider">
-                        <span>or continue with</span>
-                    </div>
-                    
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                        <div class="social-login">
-                            @foreach (var provider in Model.ExternalLogins!)
-                            {
-                                <button type="submit" class="btn-social" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
-                                    @provider.DisplayName
-                                </button>
-                            }
-                        </div>
-                    </form>
-                }
+                // Ẩn phần external logins hoàn toàn để khớp với ảnh mẫu
+                // if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                // {
+                //     <div class="divider">
+                //         <span>hoặc tiếp tục với</span>
+                //     </div>
+                //     <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                //         <div class="social-login">
+                //             @foreach (var provider in Model.ExternalLogins!)
+                //             {
+                //                 <button type="submit" class="btn-social" name="provider" value="@provider.Name" title="Đăng nhập bằng tài khoản @provider.DisplayName của bạn">
+                //                     @provider.DisplayName
+                //                 </button>
+                //             }
+                //         </div>
+                //     </form>
+                // }
             }
-            
-            <div class="links">
-                <a id="forgot-password" asp-page="./ForgotPassword">Forgot Password?</a>
-                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create Account</a>
-                <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend Confirmation</a>
+
+            <div class="login-link">
+                <p>
+                    <a id="forgot-password" asp-page="./ForgotPassword">Quên mật khẩu?</a>
+                    <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Đăng ký tài khoản</a>
+                    @* <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Gửi lại xác nhận</a> *@
+                </p>
             </div>
         </div>
     </div>

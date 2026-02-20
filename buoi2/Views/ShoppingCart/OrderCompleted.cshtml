@@ -1,3 +1,233 @@
 ﻿@model int
-<h2>Order Completed</h2>
-<p>Your order with ID @Model has been placed successfully.</p>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+    /* Bỏ các style body cũ */
+    /* body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; /* <-- Đây là nguyên nhân chính gây lỗi */
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    margin: 0;
+    }
+
+    */
+    /* Thêm một container cho toàn bộ nội dung của trang */
+    .page-wrapper {
+        min-height: calc(100vh - /* chiều cao của header/navbar */ - /* chiều cao của footer */ ); /* Điều chỉnh để đảm bảo đủ chiều cao */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px; /* Thêm padding nếu cần */
+        box-sizing: border-box; /* Quan trọng để padding không làm tăng kích thước */
+    }
+
+    .order-complete-container {
+        text-align: center;
+        padding: 50px;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        max-width: 600px;
+        width: 90%;
+        margin: auto; /* Để căn giữa container trong page-wrapper */
+    }
+
+    .order-complete-icon {
+        color: #28a745; /* Green for success */
+        font-size: 70px;
+        margin-bottom: 25px;
+        animation: fadeInScale 0.8s ease-out;
+    }
+
+    .order-complete-title {
+        font-size: 2.2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .order-complete-message {
+        font-size: 1.1rem;
+        color: #555;
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+
+    .order-id {
+        font-weight: bold;
+        color: #007bff; /* A distinct color for the ID */
+    }
+
+    .back-to-shop-btn {
+        display: inline-block;
+        padding: 12px 25px;
+        background-color: #333;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+        .back-to-shop-btn:hover {
+            background-color: #000;
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: white; /* Ensure text color remains white on hover */
+        }
+
+    @@keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="order-complete-container">
+        <i class="fas fa-check-circle order-complete-icon"></i>
+        <h2 class="order-complete-title">Cảm ơn bạn đã đặt hàng!</h2>
+        <p class="order-complete-message">
+            Đơn hàng của bạn với mã số <span class="order-id">@Model</span> đã được đặt thành công.
+            Chúng tôi sẽ xử lý đơn hàng của bạn trong thời gian sớm nhất.
+            Chúc bạn có một ngày vui vẻ!
+        </p>
+        <a href="/" class="back-to-shop-btn">Tiếp tục mua sắm</a>
+    </div>
+</div>
+
+﻿@model buoi2.Models.Order
+@using buoi2.Models 
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white text-center">
+                    <h3><i class="fas fa-check-circle"></i> Chi tiết đơn hàng</h3>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.IsNewOrder == true)
+                    {
+                        <div class="alert alert-success" role="alert">
+                            <h4 class="alert-heading">Cảm ơn bạn đã đặt hàng!</h4>
+                            <p>Đơn hàng của bạn đã được xử lý thành công. Chúng tôi sẽ liên hệ với bạn sớm để xác nhận và giao hàng.</p>
+                        </div>
+                    }
+
+                    <div class="order-details">
+                        <h5>Thông tin đơn hàng</h5>
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Mã đơn hàng:</strong></div>
+                            <div class="col-sm-9">#@Model.Id</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Ngày đặt:</strong></div>
+                            <div class="col-sm-9">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Địa chỉ giao hàng:</strong></div>
+                            <div class="col-sm-9">@Model.ShippingAddress</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Trạng thái:</strong></div>
+                            <div class="col-sm-9">
+                                @switch (Model.Status)
+                                {
+                                    case buoi2.Models.Order.OrderStatus.Pending:
+                                        <span class="badge bg-secondary">Chờ xác nhận</span>
+                                        break;
+                                    case buoi2.Models.Order.OrderStatus.Preparing:
+                                        <span class="badge bg-warning">Đang chuẩn bị hàng</span>
+                                        break;
+                                    case buoi2.Models.Order.OrderStatus.Shipping:
+                                        <span class="badge bg-primary">Đang giao hàng</span>
+                                        break;
+                                    case buoi2.Models.Order.OrderStatus.Delivered:
+                                        <span class="badge bg-success">Đã giao hàng</span>
+                                        break;
+                                    case buoi2.Models.Order.OrderStatus.Cancelled:
+                                        <span class="badge bg-danger">Đã hủy</span>
+                                        break;
+                                }
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Notes))
+                        {
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Ghi chú:</strong></div>
+                                <div class="col-sm-9">@Model.Notes</div>
+                            </div>
+                        }
+                    </div>
+
+                    @if (Model.OrderDetails != null && Model.OrderDetails.Any())
+                    {
+                        <div class="order-items mt-4">
+                            <h5>Chi tiết sản phẩm</h5>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Sản phẩm</th>
+                                            <th>Giá</th>
+                                            <th>Số lượng</th>
+                                            <th>Thành tiền</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.OrderDetails)
+                                        {
+                                            <tr>
+                                                <td>@(item.Product?.Name ?? "Sản phẩm không xác định")</td>
+                                                <td>@item.Price.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                                                <td>@item.Quantity</td>
+                                                <td>@((item.Price * item.Quantity).ToString("N0", new System.Globalization.CultureInfo("vi-VN")))</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="table-info">
+                                            <th colspan="3">Tổng tiền:</th>
+                                            <th>@Model.TotalPrice.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">Không có chi tiết đơn hàng.</div>
+                    }
+
+                    <div class="text-center mt-4">
+                        <a href="@Url.Action("OrderHistory", "ShoppingCart")" class="btn btn-primary">Xem lịch sử đơn hàng</a>
+                        <a href="@Url.Action("Index", "Product")" class="btn btn-primary">Tiếp tục mua sắm</a>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Về trang chủ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Tự động ẩn thông báo sau 5 giây
+        setTimeout(function () {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
+}

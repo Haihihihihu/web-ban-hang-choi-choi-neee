@@ -1,33 +1,176 @@
 ﻿@model buoi2.Models.Product
 @using Microsoft.AspNetCore.Mvc.Rendering
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
 @{
-    ViewData["Title"] = "Add Product";
+    Layout = "/Views/Shared/_Layout.cshtml";
 }
-<h2>Add Product</h2>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+    }
+
+    .form-header:hover {
+        opacity: 0.7; /* Hiệu ứng hover từ Index.cshtml */
+    }
+
+    /* Card Styling */
+    .card {
+        border: 1px solid rgba(107, 114, 128, 0.5); /* Viền xám trung bình từ Index.cshtml */
+        border-radius: 1rem;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2); /* Bóng đậm hơn từ Index.cshtml */
+        background: #ffffff; /* Nền trắng thuần từ Index.cshtml */
+        margin: 0 auto 2.5rem;
+        padding: 2.5rem; /* Padding lớn từ Index.cshtml */
+        max-width: 1400px; /* Độ rộng lớn để tránh nút bị xuống dòng */
+    }
+
+    /* Form Group */
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    /* Form Label */
+    .form-label {
+        color: #4b5563; /* Màu xám trung bình từ Index.cshtml */
+        font-weight: 500;
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    /* Form Control (Input, Select, Textarea) */
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1.25rem;
+        border: 1px solid rgba(107, 114, 128, 0.5); /* Viền khớp với Index.cshtml */
+        border-radius: 8px;
+        background-color: #ffffff;
+        color: #1e293b; /* Màu chữ đậm từ Index.cshtml */
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6; /* Màu xanh dương từ Index.cshtml */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-control::placeholder {
+            color: #6b7280; /* Màu xám nhạt từ Index.cshtml */
+        }
+
+    /* Select Styling */
+    select.form-control {
+        appearance: none;
+        background-image: url('data:image/svg+xml,%3Csvg fill="%234b5563" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"%3E%3Cpath d="M7 7l3-3 3 3m0 6l-3 3-3-3"/%3E%3C/svg%3E');
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1.25rem;
+    }
+
+    /* Textarea Styling */
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    /* Error Text */
+    .text-danger {
+        color: #dc2626; /* Màu đỏ từ Index.cshtml */
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    /* Button Styling */
+    .btn {
+        display: inline-block;
+        padding: 0.75rem 1.75rem; /* Kích thước nút từ Index.cshtml */
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 700; /* Đậm từ Index.cshtml */
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+        white-space: nowrap;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #4b5563, #1e293b); /* Gradient từ Index.cshtml */
+        color: #ffffff;
+        border: 1px solid rgba(30, 41, 59, 0.7);
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #1e293b, #111827);
+            box-shadow: 0 0 15px rgba(30, 41, 59, 0.6);
+            transform: translateY(-2px);
+        }
+
+    .btn-outline-info {
+        border: 1px solid #3b82f6; /* Màu xanh dương từ Index.cshtml */
+        color: #3b82f6;
+    }
+
+        .btn-outline-info:hover {
+            background-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+        }
+
+    /* Margin Right Utility */
+    .me-2 {
+        margin-right: 0.75rem;
+    }
+</style>
+<h1 class="form-header text-center">Thêm Sản Phẩm</h1>
+
 <form asp-action="Add" method="post" enctype="multipart/form-data">
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="card">
+        <div class="form-group mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" placeholder="Enter product name" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Price" class="form-label"></label>
+            <input asp-for="Price" class="form-control" type="number" step="0.01" placeholder="Enter price" />
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Enter product description"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="CategoryId" class="form-label">Category</label>
+            <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-control">
+                <option value="">Select a category</option>
+            </select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="ImageUrl" class="form-label">Product Image</label>
+            <input type="file" name="imageUrl" class="form-control" accept="image/*" />
+            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <button type="submit" class="btn btn-primary me-2">Add Product</button>
+            <a asp-action="Index" asp-controller="ProductAdmin" asp-area="Admin" class="btn btn-outline-info">Cancel</a>
+        </div>
     </div>
-    <div class="form-group">
-        <label asp-for="Price"></label>
-        <input asp-for="Price" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="textdanger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="CategoryId">Category</label>
-        <select asp-for="CategoryId" asp-items="ViewBag.Categories"
-                class="form-control"></select>
-    </div>
-    <div class="form-group">
-        <label asp-for="ImageUrl">Product Image</label>
-        <input type="file" asp-for="ImageUrl" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-primary">Add</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
