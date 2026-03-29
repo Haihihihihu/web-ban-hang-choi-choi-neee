@@ -5,7 +5,7 @@
 namespace buoi2.Migrations
 {
     /// <inheritdoc />
-    public partial class AddEmail : Migration
+    public partial class StockCartItem : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
